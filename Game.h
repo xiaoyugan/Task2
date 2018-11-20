@@ -22,6 +22,8 @@ public:
 
 	const std::string get_title() const { return m_title; }
 
+	const std::string get_game_desc() const { return m_description; }
+
 	void set_title(const std::string& val) { m_title = val; }
 
 private:

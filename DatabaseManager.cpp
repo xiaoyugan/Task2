@@ -29,19 +29,17 @@ DatabaseManager& DatabaseManager::instance()
 
 void DatabaseManager::load_data()
 {
-	// add some games.
-	add_game(Game(4789, "Bounceback", "A platform puzzle game for PSP"));
-	add_game(Game(5246, "Piecefall", "A tetris like 3d puzzle game for PS4"));
+
 
 	//从表中读取玩家数据
-	std::ifstream iFile("userlist.csv",std::ios::in);
-	if (!iFile.fail())
+	std::ifstream users_stream("userlist.csv",std::ios::in);
+	if (!users_stream.fail())
 	{
 		std::string type;
 		std::string name;
 		std::string password;
 		std::string mail;
-		while (std::getline(iFile, type, ',')&& std::getline(iFile, name, ',')&& std::getline(iFile, password, ',') && std::getline(iFile, mail, '\n'))
+		while (std::getline(users_stream, type, ',')&& std::getline(users_stream, name, ',')&& std::getline(users_stream, password, ',') && std::getline(users_stream, mail, '\n'))
 		{
 			if (std::stoi(type) == 1)
 			{
@@ -52,7 +50,7 @@ void DatabaseManager::load_data()
 				add_user(new AdminUser(name, password, mail));
 			}
 		}
-		iFile.close();
+		users_stream.close();
 	}
 	else
 	{
@@ -71,18 +69,34 @@ void DatabaseManager::store_user_data(UserBase* pUser)
 {
 	//store user data 把用户数据再存到表里面
 	//定义文件输出流 
-	std::ofstream oFile;
+	std::ofstream user_stream;
 	//打开要输出的文件
-	oFile.open("userlist.csv", std::ios::out | std::ios::app);
-	if (!oFile.fail())
+	user_stream.open("userlist.csv", std::ios::out | std::ios::app);
+	if (!user_stream.fail())
 	{
-		oFile << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() << std::endl;
-		oFile.close();
+		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() << std::endl;
+		user_stream.close();
 	}
 	else
 	{
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
+}
+
+void DatabaseManager::Store_game_data(Game* rGame)
+{
+	std::ofstream game_stream;
+	game_stream.open("gamelist.csv", std::ios::out | std::ios::app);
+	if (!game_stream.fail())
+	{
+		game_stream << rGame->get_game_id() << "," << rGame->get_title() << "," << rGame->get_game_desc() << std::endl;
+		game_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+	
 }
 
 void DatabaseManager::add_user(UserBase* pUser)
@@ -101,6 +115,12 @@ void DatabaseManager::add_and_store_user(UserBase* pUser)
 	store_user_data(pUser);
 }
 
+void DatabaseManager::add_and_store_game(Game* rGame)
+{
+	add_game(rGame);
+	Store_game_data(rGame);
+}
+
 UserBase* DatabaseManager::find_user(const UserBase::Username& username)
 {
 	auto it = m_users.find(username);
@@ -114,10 +134,10 @@ UserBase* DatabaseManager::find_user(const UserBase::Username& username)
 	}
 }
 
-void DatabaseManager::add_game(Game& rGame)
+void DatabaseManager::add_game(Game* rGame)
 {
 	// Store the game indexed by game id.
-	m_games.insert(std::make_pair(rGame.get_game_id(), rGame));
+	m_games.insert(std::make_pair(rGame->get_game_id(), rGame));
 }
 
 Game* DatabaseManager::find_game(const Game::GameId gameid)
@@ -125,7 +145,7 @@ Game* DatabaseManager::find_game(const Game::GameId gameid)
 	auto it = m_games.find(gameid);
 	if (it != m_games.end())
 	{
-		return &it->second;
+		return it->second;
 	}
 	else
 	{

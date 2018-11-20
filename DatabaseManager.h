@@ -24,14 +24,20 @@ public:
 	// Write all the data to storage.
 	void store_data();
 
-	//Real-time storage of users
+	// Real-time store users
 	void store_user_data(UserBase* pUser);
+
+	// Real-time store games
+	void Store_game_data(Game* rGame);
 
 	// Adds a user to the db.
 	void add_user(UserBase* pUser);
 
 	// Add and store users
 	void add_and_store_user(UserBase* pUser);
+
+	// Add and store games
+	void add_and_store_game(Game* rGame);
 
 	// Finds a user by username, return nullptr if the user is not found.
 	UserBase* find_user(const UserBase::Username& username);
@@ -43,7 +49,7 @@ public:
 	}
 
 	// Adds a game to the db.
-	void add_game(Game& rGame);
+	void add_game(Game* rGame);
 
 	// Finds a game by id, returns nullptr if the game is not found.
 	Game* find_game(const Game::GameId gameid);
@@ -51,7 +57,7 @@ public:
 	// iterating games using visitor pattern
 	template<typename Visitor> void visit_games(Visitor& func)
 	{
-		for (auto it : m_games) { func(it.second); }
+		for (auto it : m_games) { func(*it.second); }
 	}
 
 private:
@@ -63,7 +69,7 @@ private:
 private:
 	// Types
 	using UserContainer = std::map<UserBase::Username, UserBase*>;
-	using GameContainer = std::map<Game::GameId, Game>;
+	using GameContainer = std::map<Game::GameId, Game*>;
 
 	UserContainer m_users;
 	GameContainer m_games;

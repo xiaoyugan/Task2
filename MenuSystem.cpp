@@ -79,7 +79,19 @@ int MenuSystem::run_admin_user_menu()
 		case '2': list_all_users(); break;
 		case '3':
 		{
-			std::cout << "TODO\n"; break;//调用添加游戏代码
+			//std::cout << "TODO\n"; break;//调用添加游戏代码
+			int g_id;
+			std::string g_title;
+			std::string g_desc;
+			std::cout << "Please Input New Game ID\n";
+			std::cin >> g_id;
+			std::cout << "Please Input New Game Title\n";
+			std::cin >> g_title;
+			std::cout << "Please Input New Game Description\n";
+			std::cin >> g_desc;
+			DatabaseManager::instance().add_and_store_game(new Game(g_id, g_title, g_desc));
+			std::cout << "Added successfully\n";
+			break;
 		}
 		case '4': 
 		{
@@ -99,8 +111,12 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> u_mail;
 			switch (op)
 			{
-			case'1':DatabaseManager::instance().add_and_store_user(new AdminUser(u_name, u_password, u_mail)); break;
-			case'2':DatabaseManager::instance().add_and_store_user(new PlayerUser(u_name, u_password, u_mail)); break;
+			case'1':DatabaseManager::instance().add_and_store_user(new AdminUser(u_name, u_password, u_mail)); 
+					std::cout << "Added successfully\n"; 
+					break;
+			case'2':DatabaseManager::instance().add_and_store_user(new PlayerUser(u_name, u_password, u_mail));
+					std::cout << "Added successfully\n";
+					break;
 			default:std::cout<< "INAVLID OPTION\n"; break;
 			}
 			break;
