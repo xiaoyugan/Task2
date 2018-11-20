@@ -33,9 +33,6 @@ public:
 	// Add and store users
 	void add_and_store_user(UserBase* pUser);
 
-	////给暂时的用户添加
-	//void add_tuser(UserBase* pUser);
-
 	// Finds a user by username, return nullptr if the user is not found.
 	UserBase* find_user(const UserBase::Username& username);
 

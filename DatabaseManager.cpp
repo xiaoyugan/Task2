@@ -29,9 +29,9 @@ DatabaseManager& DatabaseManager::instance()
 
 void DatabaseManager::load_data()
 {
-	//// add some games.
-	//add_game(Game(4789, "Bounceback", "A platform puzzle game for PSP"));
-	//add_game(Game(5246, "Piecefall", "A tetris like 3d puzzle game for PS4"));
+	// add some games.
+	add_game(Game(4789, "Bounceback", "A platform puzzle game for PSP"));
+	add_game(Game(5246, "Piecefall", "A tetris like 3d puzzle game for PS4"));
 
 	//从表中读取玩家数据
 	std::ifstream iFile("userlist.csv",std::ios::in);
@@ -60,29 +60,9 @@ void DatabaseManager::load_data()
 	}
 }
 
-//存储玩家游玩的数据其他不用
+//存储玩家游玩的数据这些
 void DatabaseManager::store_data()
 {
-	// You need a mechinsm for storing data here
-
-	////store user data 把用户数据再存到表里面
-	////定义文件输出流 
-	//std::ofstream oFile;
-	////打开要输出的文件 会清空原来的数据重新写入
-	//oFile.open("userlist.txt", std::ios::out /*| std::ios::app*/);
-	//if (!oFile.fail())
-	//{
-	//	for (auto it : m_users)
-	//	{
-	//		auto *p = it.second;
-	//		oFile << static_cast<std::underlying_type<UserTypeId>::type>(p->get_user_type()) << "," << p->get_username() << "," << p->get_password() << "," << p->get_email() << std::endl;
-	//	}
-	//	oFile.close();
-	//}
-	//else
-	//{
-	//	std::cout << "\nAn error has occurred when opening the file.\n";
-	//}
 	
 }
 
@@ -118,7 +98,7 @@ void DatabaseManager::add_user(UserBase* pUser)
 void DatabaseManager::add_and_store_user(UserBase* pUser)
 {
 	add_user(pUser);
-	add_and_store_user(pUser);
+	store_user_data(pUser);
 }
 
 UserBase* DatabaseManager::find_user(const UserBase::Username& username)
