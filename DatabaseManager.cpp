@@ -29,25 +29,41 @@ DatabaseManager& DatabaseManager::instance()
 
 void DatabaseManager::load_data()
 {
-
+	//从表中读取游戏数据
+	std::ifstream games_stream("gamelist.csv", std::ios::in);
+	if (!games_stream.fail())
+	{
+		std::string g_id;
+		std::string g_title;
+		std::string g_desc;
+		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') && std::getline(games_stream, g_desc, '\n'))
+		{
+			add_game(new Game(std::stoi(g_id), g_title, g_desc));
+		}
+		games_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
 
 	//从表中读取玩家数据
 	std::ifstream users_stream("userlist.csv",std::ios::in);
 	if (!users_stream.fail())
 	{
-		std::string type;
-		std::string name;
-		std::string password;
-		std::string mail;
-		while (std::getline(users_stream, type, ',')&& std::getline(users_stream, name, ',')&& std::getline(users_stream, password, ',') && std::getline(users_stream, mail, '\n'))
+		std::string u_type;
+		std::string u_name;
+		std::string u_password;
+		std::string u_mail;
+		while (std::getline(users_stream, u_type, ',')&& std::getline(users_stream, u_name, ',')&& std::getline(users_stream, u_password, ',') && std::getline(users_stream, u_mail, '\n'))
 		{
-			if (std::stoi(type) == 1)
+			if (std::stoi(u_type) == 1)
 			{
-				add_user(new PlayerUser(name, password, mail));
+				add_user(new PlayerUser(u_name, u_password, u_mail));
 			}
-			else if (std::stoi(type)== 2)
+			else if (std::stoi(u_type)== 2)
 			{
-				add_user(new AdminUser(name, password, mail));
+				add_user(new AdminUser(u_name, u_password, u_mail));
 			}
 		}
 		users_stream.close();
