@@ -1,6 +1,6 @@
 //C++ Boot Camp - Task 2 - 2018-19 
-//Name: 
-//Student number: 
+//Name: Maodan Luo
+//Student number: 27042120
 
 #include <iostream>
 

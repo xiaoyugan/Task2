@@ -1,6 +1,6 @@
 //C++ Boot Camp - Task 2 - 2018-19 
-//Name: 
-//Student number: 
+//Name: Maodan Luo
+//Student number: 27042120 
 
 #include "MenuSystem.h"
 
@@ -77,8 +77,34 @@ int MenuSystem::run_admin_user_menu()
 		{
 		case '1': list_all_games(); break;
 		case '2': list_all_users(); break;
-		case '3': std::cout << "TODO\n"; break;
-		case '4': std::cout << "TODO\n"; break;
+		case '3':
+		{
+			std::cout << "TODO\n"; break;//调用添加游戏代码
+		}
+		case '4': 
+		{
+			//std::cout << "TODO\n"; break;//调用userdatabase里面的add_users
+			std::string u_name;
+			std::string u_password;
+			std::string u_mail;
+			char op;
+			std::cout << "(1) Add AdminUser\n";
+			std::cout << "(2) Add PlayerUser\n";
+			std::cin >> op;
+			std::cout << "Please Input New User Name\n";
+			std::cin >> u_name;
+			std::cout << "Please Input New User Passerword\n";
+			std::cin >> u_password;
+			std::cout<< "Please Input New User Email\n";
+			std::cin >> u_mail;
+			switch (op)
+			{
+			case'1':DatabaseManager::instance().add_and_store_user(new AdminUser(u_name, u_password, u_mail)); break;
+			case'2':DatabaseManager::instance().add_and_store_user(new PlayerUser(u_name, u_password, u_mail)); break;
+			default:std::cout<< "INAVLID OPTION\n"; break;
+			}
+			break;
+		}
 		case 'q': result = -1; break;
 		default:  std::cout << "INAVLID OPTION\n"; break;
 		}

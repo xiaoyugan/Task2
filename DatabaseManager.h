@@ -1,6 +1,6 @@
 //C++ Boot Camp - Task 2 - 2018-19 
-//Name: 
-//Student number: 
+//Name: Maodan Luo
+//Student number: 27042120
 #pragma once
 
 #include "Game.h"
@@ -24,8 +24,17 @@ public:
 	// Write all the data to storage.
 	void store_data();
 
+	//Real-time storage of users
+	void store_user_data(UserBase* pUser);
+
 	// Adds a user to the db.
 	void add_user(UserBase* pUser);
+
+	// Add and store users
+	void add_and_store_user(UserBase* pUser);
+
+	////给暂时的用户添加
+	//void add_tuser(UserBase* pUser);
 
 	// Finds a user by username, return nullptr if the user is not found.
 	UserBase* find_user(const UserBase::Username& username);
