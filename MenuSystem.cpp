@@ -13,7 +13,7 @@ MenuSystem& MenuSystem::instance()
 void MenuSystem::list_all_games() const
 {
 	auto gameVisitorLambda = [](const Game& rGame) {
-		std::cout << rGame.get_title() << "\n";
+		std::cout << "id: "<<rGame.get_game_id()<<", title: "+rGame.get_title()<<", description: "+rGame.get_game_desc()<< "\n";
 	};
 
 	DatabaseManager::instance().visit_games(gameVisitorLambda);
@@ -68,6 +68,8 @@ int MenuSystem::run_admin_user_menu()
 		std::cout << "(2) List All Users\n";
 		std::cout << "(3) Add Game\n";
 		std::cout << "(4) Add User\n";
+		std::cout << "(5) Modify Game\n";//todo
+		std::cout << "(6) Remove Game\n";//todo
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -89,7 +91,7 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> g_title;
 			std::cout << "Please Input New Game Description\n";
 			std::cin >> g_desc;
-			DatabaseManager::instance().add_and_store_game(new Game(g_id, g_title, g_desc));
+			DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_desc));
 			std::cout << "Added successfully\n";
 			break;
 		}
@@ -119,6 +121,48 @@ int MenuSystem::run_admin_user_menu()
 					break;
 			default:std::cout<< "INAVLID OPTION\n"; break;
 			}
+			break;
+		}
+		case'5':
+		{
+			//modify game
+			int g_id;
+			char op;
+			list_all_games();
+			std::cout << "Please Input The ID Of The Game That You Want to Modify\n";
+			std::cin >> g_id;
+			auto rGame = DatabaseManager::instance().find_game(g_id);
+			std::cout << "(1) Modify The Title\n"
+				<< "(2) Modify The Description\n"
+				<< "(3) Quite\n";
+			switch (op)
+			{
+			case'1':
+			{
+				std::string modify_name;
+				std::cout << "Please Input The New Title\n";
+				std::cin >> modify_name;
+				rGame->set_title(modify_name);
+				std::cout << "Modify the title successfully";
+				break;
+			}
+			case'2':
+			{
+				std::string modify_desc;
+				std::cout << "Please Input The New Title\n";
+				std::cin >> modify_desc;
+				rGame->set_title(modify_desc);
+				std::cout << "Modify the description successfully";
+				break;
+			}
+			case'3':break;
+			default: std::cout << "INAVLID OPTION\n"; break;
+			}
+			break;
+		}
+		case'6':
+		{
+			//remove game
 			break;
 		}
 		case 'q': result = -1; break;

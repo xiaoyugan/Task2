@@ -38,7 +38,7 @@ void DatabaseManager::load_data()
 		std::string g_desc;
 		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') && std::getline(games_stream, g_desc, '\n'))
 		{
-			add_game(new Game(std::stoi(g_id), g_title, g_desc));
+			add_game(Game(std::stoi(g_id), g_title, g_desc));
 		}
 		games_stream.close();
 	}
@@ -77,7 +77,7 @@ void DatabaseManager::load_data()
 //存储玩家游玩的数据这些
 void DatabaseManager::store_data()
 {
-	
+	// 存储修改后和删除后的游戏数据
 }
 
 //添加一个就更新一个，实时把用户数据加入到表单，防止程序没有正常结束而使数据丢失
@@ -99,20 +99,26 @@ void DatabaseManager::store_user_data(UserBase* pUser)
 	}
 }
 
-void DatabaseManager::Store_game_data(Game* rGame)
+//单个插入
+void DatabaseManager::store_game_data(Game &rGame)
 {
 	std::ofstream game_stream;
 	game_stream.open("gamelist.csv", std::ios::out | std::ios::app);
 	if (!game_stream.fail())
 	{
-		game_stream << rGame->get_game_id() << "," << rGame->get_title() << "," << rGame->get_game_desc() << std::endl;
+		game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," << rGame.get_game_desc() << std::endl;
 		game_stream.close();
 	}
 	else
 	{
 		std::cout << "\nAn error has occurred when opening the file.\n";
-	}
-	
+	}	
+}
+
+// 防止添加完成后没有正常退出造成的数据丢失
+void DatabaseManager::update_games_data(Game&game)
+{
+
 }
 
 void DatabaseManager::add_user(UserBase* pUser)
@@ -131,10 +137,10 @@ void DatabaseManager::add_and_store_user(UserBase* pUser)
 	store_user_data(pUser);
 }
 
-void DatabaseManager::add_and_store_game(Game* rGame)
+void DatabaseManager::add_and_store_game(Game&rGame)
 {
 	add_game(rGame);
-	Store_game_data(rGame);
+	store_game_data(rGame);
 }
 
 UserBase* DatabaseManager::find_user(const UserBase::Username& username)
@@ -150,10 +156,10 @@ UserBase* DatabaseManager::find_user(const UserBase::Username& username)
 	}
 }
 
-void DatabaseManager::add_game(Game* rGame)
+void DatabaseManager::add_game(Game&rGame)
 {
 	// Store the game indexed by game id.
-	m_games.insert(std::make_pair(rGame->get_game_id(), rGame));
+	m_games.insert(std::make_pair(rGame.get_game_id(), rGame));
 }
 
 Game* DatabaseManager::find_game(const Game::GameId gameid)
@@ -161,7 +167,7 @@ Game* DatabaseManager::find_game(const Game::GameId gameid)
 	auto it = m_games.find(gameid);
 	if (it != m_games.end())
 	{
-		return it->second;
+		return &it->second;
 	}
 	else
 	{
