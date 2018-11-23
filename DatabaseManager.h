@@ -28,7 +28,7 @@ public:
 	void store_user_data(UserBase* pUser);
 
 	// Real-time store games
-	void store_game_data(Game&rGame);
+	void store_game_data(const Game&rGame);
 
 	// Adds a user to the db.
 	void add_user(UserBase* pUser);
@@ -51,8 +51,11 @@ public:
 	// Adds a game to the db.
 	void add_game(Game&rGame);
 
+	// Remove games
+	void remove_game(int id);
+
 	// Update games data把刚修改过的数据传进表中
-	void update_games_data(Game&game);
+	void update_games_data();
 
 	// Finds a game by id, returns nullptr if the game is not found.
 	Game* find_game(const Game::GameId gameid);

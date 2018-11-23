@@ -100,7 +100,7 @@ void DatabaseManager::store_user_data(UserBase* pUser)
 }
 
 //单个插入
-void DatabaseManager::store_game_data(Game &rGame)
+void DatabaseManager::store_game_data(const Game &rGame)
 {
 	std::ofstream game_stream;
 	game_stream.open("gamelist.csv", std::ios::out | std::ios::app);
@@ -116,9 +116,23 @@ void DatabaseManager::store_game_data(Game &rGame)
 }
 
 // 防止添加完成后没有正常退出造成的数据丢失
-void DatabaseManager::update_games_data(Game&game)
+void DatabaseManager::update_games_data()
 {
-
+	for (auto it : m_games)
+	{
+		auto rGame = it.second;
+		std::ofstream game_stream;
+		game_stream.open("gamelist.csv", std::ios::out);
+		if (!game_stream.fail())
+		{
+			game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," << rGame.get_game_desc() << std::endl;
+			game_stream.close();
+		}
+		else
+		{
+			std::cout << "\nAn error has occurred when opening the file.\n";
+		}
+	}
 }
 
 void DatabaseManager::add_user(UserBase* pUser)
@@ -160,6 +174,11 @@ void DatabaseManager::add_game(Game&rGame)
 {
 	// Store the game indexed by game id.
 	m_games.insert(std::make_pair(rGame.get_game_id(), rGame));
+}
+
+void DatabaseManager::remove_game(int id)
+{
+	m_games.erase(id);
 }
 
 Game* DatabaseManager::find_game(const Game::GameId gameid)

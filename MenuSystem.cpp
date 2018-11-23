@@ -133,8 +133,9 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> g_id;
 			auto rGame = DatabaseManager::instance().find_game(g_id);
 			std::cout << "(1) Modify The Title\n"
-				<< "(2) Modify The Description\n"
-				<< "(3) Quite\n";
+				      << "(2) Modify The Description\n"
+				      << "(3) Quite\n";
+			std::cin >> op;
 			switch (op)
 			{
 			case'1':
@@ -143,15 +144,17 @@ int MenuSystem::run_admin_user_menu()
 				std::cout << "Please Input The New Title\n";
 				std::cin >> modify_name;
 				rGame->set_title(modify_name);
+				DatabaseManager::instance().update_games_data();
 				std::cout << "Modify the title successfully";
 				break;
 			}
 			case'2':
 			{
 				std::string modify_desc;
-				std::cout << "Please Input The New Title\n";
+				std::cout << "Please Input The New Description\n";
 				std::cin >> modify_desc;
-				rGame->set_title(modify_desc);
+				rGame->set_description(modify_desc);
+				DatabaseManager::instance().update_games_data();
 				std::cout << "Modify the description successfully";
 				break;
 			}
@@ -163,6 +166,13 @@ int MenuSystem::run_admin_user_menu()
 		case'6':
 		{
 			//remove game
+			int g_id;
+			list_all_games();
+			std::cout << "Please Input The ID Of The Game That You Want to Remove\n";
+			std::cin >> g_id;
+			DatabaseManager::instance().remove_game(g_id);
+			DatabaseManager::instance().update_games_data();
+			std::cout << "Remove the game successfully";
 			break;
 		}
 		case 'q': result = -1; break;
