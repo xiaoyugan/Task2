@@ -118,20 +118,14 @@ void DatabaseManager::store_game_data(const Game &rGame)
 // 防止添加完成后没有正常退出造成的数据丢失
 void DatabaseManager::update_games_data()
 {
+	//clean
+	std::ofstream games_stream;
+	games_stream.open("gamelist.csv", std::ios::out);
+	games_stream.close();
+
 	for (auto it : m_games)
 	{
-		auto rGame = it.second;
-		std::ofstream game_stream;
-		game_stream.open("gamelist.csv", std::ios::out);
-		if (!game_stream.fail())
-		{
-			game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," << rGame.get_game_desc() << std::endl;
-			game_stream.close();
-		}
-		else
-		{
-			std::cout << "\nAn error has occurred when opening the file.\n";
-		}
+		store_game_data(it.second);
 	}
 }
 
