@@ -226,11 +226,25 @@ int MenuSystem::run_player_user_menu()
 		case '2': 
 		{
 			//"(2) List My Games\n";
+			auto mygames=pPlayerUser->get_game_list();
+			if (!mygames.empty())
+			{
+				for (auto it : mygames)
+				{
+					auto rGame = DatabaseManager::instance().find_game(it);
+					std::cout << "id: " << rGame->get_game_id() << ", title: " + rGame->get_title() << ", price: " << rGame->get_game_Price() << ", description: " + rGame->get_game_desc() << "\n";
+				}
+			}
+			else 
+			{
+				std::cout << "You do not have any games\n\n";
+			}
 			break;
 		}
 		case '3': 
 		{
 			//"(3) Buy Game\n";
+			list_all_games();
 			break;
 		}
 		case '4': 
@@ -240,6 +254,7 @@ int MenuSystem::run_player_user_menu()
 			std::cout << "Please input the amount you want to top up\n";
 			std::cin >> topup;
 			pPlayerUser->set_accountFunds(topup);
+			DatabaseManager::instance().update_player_data();
 			std::cout << "Top up successfully\n";
 			break;
 		}

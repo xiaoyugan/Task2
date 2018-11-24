@@ -159,10 +159,25 @@ void DatabaseManager::update_games_data()
 	std::ofstream games_stream;
 	games_stream.open("gamelist.csv", std::ios::out);
 	games_stream.close();
-
 	for (auto it : m_games)
 	{
 		store_game_data(it.second);
+	}
+}
+
+void DatabaseManager::update_player_data()
+{
+	//clean
+	std::ofstream player_stream;
+	player_stream.open("playerlist.csv", std::ios::out);
+	player_stream.close();
+
+	for (auto it : m_users)
+	{
+		if (it.second->get_user_type() == UserTypeId::kPlayerUser)
+		{
+			store_playeruser_data(it.second);
+		}
 	}
 }
 

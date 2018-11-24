@@ -29,6 +29,8 @@ public:
 
 	void store_playeruser_data(UserBase*pUser);
 
+	void update_player_data();
+
 	// Real-time store games (app)
 	void store_game_data(const Game&rGame);
 
