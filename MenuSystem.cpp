@@ -89,11 +89,14 @@ int MenuSystem::run_admin_user_menu()
 			std::cout << "Please Input New Game ID\n";
 			std::cin >> g_id;
 			std::cout << "Please Input New Game Title\n";
-			std::cin >> g_title;
+			std::cin.ignore();
+			std::getline(std::cin, g_title, '\n');
 			std::cout << "Please Input New Game Price\n";
 			std::cin >> g_price;
 			std::cout << "Please Input New Game Description\n";
-			std::cin >> g_desc;
+			std::cin.ignore();
+			std::getline(std::cin, g_desc, '\n');
+			//std::cin.getline(std::cin, g_desc);
 			DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_price, g_desc));
 			std::cout << "Added successfully\n";
 			break;
