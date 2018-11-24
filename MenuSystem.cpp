@@ -13,7 +13,7 @@ MenuSystem& MenuSystem::instance()
 void MenuSystem::list_all_games() const
 {
 	auto gameVisitorLambda = [](const Game& rGame) {
-		std::cout << "id: "<<rGame.get_game_id()<<", title: "+rGame.get_title()<<", description: "+rGame.get_game_desc()<< "\n";
+		std::cout << "id: "<<rGame.get_game_id()<<", title: "+rGame.get_title()<<", price: "<<rGame.get_game_Price()<<", description: "+rGame.get_game_desc()<< "\n";
 	};
 
 	DatabaseManager::instance().visit_games(gameVisitorLambda);
