@@ -35,10 +35,11 @@ void DatabaseManager::load_data()
 	{
 		std::string g_id;
 		std::string g_title;
+		std::string g_price;
 		std::string g_desc;
-		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') && std::getline(games_stream, g_desc, '\n'))
+		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') &&std::getline(games_stream,g_price,',') &&std::getline(games_stream, g_desc, '\n'))
 		{
-			add_game(Game(std::stoi(g_id), g_title, g_desc));
+			add_game(Game(std::stoi(g_id), g_title,std::stof(g_price), g_desc));
 		}
 		games_stream.close();
 	}
@@ -106,7 +107,7 @@ void DatabaseManager::store_game_data(const Game &rGame)
 	game_stream.open("gamelist.csv", std::ios::out | std::ios::app);
 	if (!game_stream.fail())
 	{
-		game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," << rGame.get_game_desc() << std::endl;
+		game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," <<rGame.get_game_Price()<<","<< rGame.get_game_desc() << std::endl;
 		game_stream.close();
 	}
 	else

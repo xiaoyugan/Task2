@@ -24,10 +24,10 @@ public:
 	// Write all the data to storage.
 	void store_data();
 
-	// Real-time store users
+	// Real-time store users (app)
 	void store_user_data(UserBase* pUser);
 
-	// Real-time store games
+	// Real-time store games (app)
 	void store_game_data(const Game&rGame);
 
 	// Adds a user to the db.

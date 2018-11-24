@@ -83,15 +83,18 @@ int MenuSystem::run_admin_user_menu()
 		{
 			//std::cout << "TODO\n"; break;//调用添加游戏代码
 			int g_id;
+			float g_price;
 			std::string g_title;
 			std::string g_desc;
 			std::cout << "Please Input New Game ID\n";
 			std::cin >> g_id;
 			std::cout << "Please Input New Game Title\n";
 			std::cin >> g_title;
+			std::cout << "Please Input New Game Price\n";
+			std::cin >> g_price;
 			std::cout << "Please Input New Game Description\n";
 			std::cin >> g_desc;
-			DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_desc));
+			DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_price, g_desc));
 			std::cout << "Added successfully\n";
 			break;
 		}
@@ -134,7 +137,8 @@ int MenuSystem::run_admin_user_menu()
 			auto rGame = DatabaseManager::instance().find_game(g_id);
 			std::cout << "(1) Modify The Title\n"
 				      << "(2) Modify The Description\n"
-				      << "(3) Quite\n";
+					  << "(3) Modify The Price\n"
+				      << "(4) Quite\n";
 			std::cin >> op;
 			switch (op)
 			{
@@ -158,7 +162,17 @@ int MenuSystem::run_admin_user_menu()
 				std::cout << "Modify the description successfully";
 				break;
 			}
-			case'3':break;
+			case'3':
+			{
+				float modify_price;
+				std::cout << "Please Input The New Price\n";
+				std::cin >> modify_price;
+				rGame->set_price(modify_price);
+				DatabaseManager::instance().update_games_data();
+				std::cout << "Modify the description successfully";
+				break;
+			}
+			case'4':break;
 			default: std::cout << "INAVLID OPTION\n"; break;
 			}
 			break;

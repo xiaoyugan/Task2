@@ -59,7 +59,7 @@ public:
 
 	// inherit the constructor.
 	using UserBase::UserBase;
-	
+
 	// define the specific user type.
 	virtual const UserTypeId  get_user_type() const override { return UserTypeId::kPlayerUser; }
 
@@ -69,7 +69,7 @@ public:
 
 private:
 	GameList m_ownedGames; // List of owned games.
-	double m_accountFunds; // The players available funds.
+	double m_accountFunds{0}; // The players available funds.
 };
 
 //--
