@@ -223,9 +223,26 @@ int MenuSystem::run_player_user_menu()
 		switch (option)
 		{
 		case '1': list_all_games(); break;
-		case '2': std::cout << "TODO\n"; break;
-		case '3': std::cout << "TODO\n"; break;
-		case '4': std::cout << "TODO\n"; break;
+		case '2': 
+		{
+			//"(2) List My Games\n";
+			break;
+		}
+		case '3': 
+		{
+			//"(3) Buy Game\n";
+			break;
+		}
+		case '4': 
+		{
+			//(4) Add Funds\n"
+			double topup;
+			std::cout << "Please input the amount you want to top up\n";
+			std::cin >> topup;
+			pPlayerUser->set_accountFunds(topup);
+			std::cout << "Top up successfully\n";
+			break;
+		}
 		case 'q': result = -1; break;
 		default:  std::cout << "INAVLID OPTION\n"; break;
 		}

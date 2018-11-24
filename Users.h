@@ -71,6 +71,8 @@ public:
 
 	const double get_available_funds() const  { return m_accountFunds; }
 
+	void set_accountFunds(const double& val) { m_accountFunds = val; }
+
 private:
 	GameList m_ownedGames; // List of owned games.
 	double m_accountFunds; // The players available funds.
