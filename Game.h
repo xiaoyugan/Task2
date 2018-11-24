@@ -9,7 +9,7 @@ class Game
 {
 public:
 	using GameId = int;
-	using GamePrice = float;
+	using GamePrice = double;
 
 	Game(const GameId& gameId, const std::string& title, const GamePrice&price, const std::string& desc)
 		: m_gameId(gameId)

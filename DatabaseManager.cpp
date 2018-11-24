@@ -30,7 +30,7 @@ DatabaseManager& DatabaseManager::instance()
 void DatabaseManager::load_data()
 {
 	//从表中读取游戏数据
-	std::ifstream games_stream("gamelist.csv", std::ios::in);
+	std::ifstream games_stream("gamelist.csv", std::ios::in| std::ios::_Nocreate);
 	if (!games_stream.fail())
 	{
 		std::string g_id;
@@ -39,7 +39,7 @@ void DatabaseManager::load_data()
 		std::string g_desc;
 		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') &&std::getline(games_stream,g_price,',') &&std::getline(games_stream, g_desc, '\n'))
 		{
-			add_game(Game(std::stoi(g_id), g_title,std::stof(g_price), g_desc));
+			add_game(Game(std::stoi(g_id), g_title,std::stod(g_price), g_desc));
 		}
 		games_stream.close();
 	}
@@ -48,26 +48,45 @@ void DatabaseManager::load_data()
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
 
-	//从表中读取玩家数据
-	std::ifstream users_stream("userlist.csv",std::ios::in);
-	if (!users_stream.fail())
+	//从表中读取管理员数据
+	std::ifstream admin_stream("adminlist.csv",std::ios::in | std::ios::_Nocreate);
+	if (!admin_stream.fail())
 	{
 		std::string u_type;
 		std::string u_name;
 		std::string u_password;
 		std::string u_mail;
-		while (std::getline(users_stream, u_type, ',')&& std::getline(users_stream, u_name, ',')&& std::getline(users_stream, u_password, ',') && std::getline(users_stream, u_mail, '\n'))
+		while (std::getline(admin_stream, u_type, ',')&& std::getline(admin_stream, u_name, ',')&& std::getline(admin_stream, u_password, ',') && std::getline(admin_stream, u_mail, '\n'))
 		{
-			if (std::stoi(u_type) == 1)
-			{
-				add_user(new PlayerUser(u_name, u_password, u_mail));
-			}
-			else if (std::stoi(u_type)== 2)
+			if (std::stoi(u_type)== 2)
 			{
 				add_user(new AdminUser(u_name, u_password, u_mail));
 			}
 		}
-		users_stream.close();
+		admin_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+
+	//从表中读取玩家数据
+	std::ifstream player_stream("playerlist.csv", std::ios::in | std::ios::_Nocreate);
+	if (!player_stream.fail())
+	{
+		std::string u_type;
+		std::string u_name;
+		std::string u_password;
+		std::string u_mail;
+		std::string u_account_funds;
+		while (std::getline(player_stream, u_type, ',') && std::getline(player_stream, u_name, ',') && std::getline(player_stream, u_password, ',') && std::getline(player_stream, u_mail, ',')&&std::getline(player_stream,u_account_funds,'\n'))
+		{
+			if (std::stoi(u_type) == 1)
+			{
+				add_user(new PlayerUser(u_name, u_password, u_mail, std::stod(u_account_funds)));
+			}
+		}
+		player_stream.close();
 	}
 	else
 	{
@@ -82,16 +101,33 @@ void DatabaseManager::store_data()
 }
 
 //添加一个就更新一个，实时把用户数据加入到表单，防止程序没有正常结束而使数据丢失
-void DatabaseManager::store_user_data(UserBase* pUser)
+void DatabaseManager::store_adminuser_data(UserBase* pUser)
 {
 	//store user data 把用户数据再存到表里面
 	//定义文件输出流 
 	std::ofstream user_stream;
 	//打开要输出的文件
-	user_stream.open("userlist.csv", std::ios::out | std::ios::app);
+	user_stream.open("adminlist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
 		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() << std::endl;
+		user_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+}
+
+void DatabaseManager::store_playeruser_data(UserBase*puser)
+{
+	PlayerUser* pUser = static_cast<PlayerUser*>(puser);
+	std::ofstream user_stream;
+	//打开要输出的文件
+	user_stream.open("playerlist.csv", std::ios::out | std::ios::app);
+	if (!user_stream.fail())
+	{
+		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() <<","<<pUser->get_available_funds()<< std::endl;
 		user_stream.close();
 	}
 	else
@@ -140,10 +176,16 @@ void DatabaseManager::add_user(UserBase* pUser)
 	}
 }
 
-void DatabaseManager::add_and_store_user(UserBase* pUser)
+void DatabaseManager::add_and_store_adminuser(UserBase* pUser)
 {
 	add_user(pUser);
-	store_user_data(pUser);
+	store_adminuser_data(pUser);
+}
+
+void DatabaseManager::add_and_store_playeruser(UserBase*pUser)
+{
+	add_user(pUser);
+	store_playeruser_data(pUser);
 }
 
 void DatabaseManager::add_and_store_game(Game&rGame)

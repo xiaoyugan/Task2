@@ -83,7 +83,7 @@ int MenuSystem::run_admin_user_menu()
 		{
 			//std::cout << "TODO\n"; break;//调用添加游戏代码
 			int g_id;
-			float g_price;
+			double g_price;
 			std::string g_title;
 			std::string g_desc;
 			std::cout << "Please Input New Game ID\n";
@@ -116,10 +116,10 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> u_mail;
 			switch (op)
 			{
-			case'1':DatabaseManager::instance().add_and_store_user(new AdminUser(u_name, u_password, u_mail)); 
+			case'1':DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail)); 
 					std::cout << "Added successfully\n"; 
 					break;
-			case'2':DatabaseManager::instance().add_and_store_user(new PlayerUser(u_name, u_password, u_mail));
+			case'2':DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, u_mail,0.0));
 					std::cout << "Added successfully\n";
 					break;
 			default:std::cout<< "INAVLID OPTION\n"; break;
@@ -164,7 +164,7 @@ int MenuSystem::run_admin_user_menu()
 			}
 			case'3':
 			{
-				float modify_price;
+				double modify_price;
 				std::cout << "Please Input The New Price\n";
 				std::cin >> modify_price;
 				rGame->set_price(modify_price);
@@ -207,7 +207,7 @@ int MenuSystem::run_player_user_menu()
 	do
 	{
 		std::cout << "Player Menu (" << m_pUser->get_username() << ")\n";
-		std::cout << "Wallet \x9C" << pPlayerUser->get_available_funds() << "\n";
+		std::cout << "Wallet :" << pPlayerUser->get_available_funds() << "\n";
 		std::cout << "(1) List All Games\n";
 		std::cout << "(2) List My Games\n";
 		std::cout << "(3) Buy Game\n";

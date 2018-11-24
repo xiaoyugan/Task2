@@ -25,7 +25,9 @@ public:
 	void store_data();
 
 	// Real-time store users (app)
-	void store_user_data(UserBase* pUser);
+	void store_adminuser_data(UserBase* pUser);
+
+	void store_playeruser_data(UserBase*pUser);
 
 	// Real-time store games (app)
 	void store_game_data(const Game&rGame);
@@ -34,7 +36,9 @@ public:
 	void add_user(UserBase* pUser);
 
 	// Add and store users
-	void add_and_store_user(UserBase* pUser);
+	void add_and_store_adminuser(UserBase* pUser);
+
+	void add_and_store_playeruser(UserBase*pUser);
 
 	// Add and store games
 	void add_and_store_game(Game&rGame);
