@@ -29,6 +29,8 @@ public:
 
 	void store_playeruser_data(UserBase*pUser);
 
+	void store_guest_data(GuestUser*gUser);
+
 	void store_owned_games(UserBase*pUser);
 
 	void update_player_data();
@@ -39,16 +41,22 @@ public:
 	// Adds a user to the db.
 	void add_user(UserBase* pUser);
 
+	void add_guest(GuestUser*gUser);
+
 	// Add and store users
 	void add_and_store_adminuser(UserBase* pUser);
 
 	void add_and_store_playeruser(UserBase*pUser);
+
+	void add_and_stroe_guest(GuestUser*gUser);
 
 	// Add and store games
 	void add_and_store_game(Game&rGame);
 
 	// Finds a user by username, return nullptr if the user is not found.
 	UserBase* find_user(const UserBase::Username& username);
+
+	GuestUser*find_guest(const std::string&mail);
 
 	// iterating users using visitor pattern
 	template<typename Visitor> void visit_users(Visitor& func)
@@ -96,9 +104,10 @@ private:
 	// Types
 	using UserContainer = std::map<UserBase::Username, UserBase*>;
 	using GameContainer = std::map<Game::GameId, Game>;
+	using GuestUserContainer = std::map<std::string, GuestUser*>;
 
 	UserContainer m_users;
 	GameContainer m_games;
-
+	GuestUserContainer m_gUsers;
 };
 

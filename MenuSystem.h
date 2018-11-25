@@ -28,13 +28,17 @@ private:
 
 	int run_login_screen();
 
+	int run_guest_screen();
+
 	int run_admin_user_menu();
 
 	int run_player_user_menu();
 
 	int run_unknown_user_menu();
 
+	int run_guest_user_menu();
 private:
 	UserBase* m_pUser = nullptr;  // the currently logged in user.
+	GuestUser*m_gUser = nullptr;
 };
 

@@ -14,6 +14,7 @@ enum class UserTypeId
 	kInvalid = 0
 	, kPlayerUser
 	, kAdminUser
+	, kGuestUser
 };
 
 //--
@@ -103,3 +104,17 @@ public:
 	virtual const UserTypeId get_user_type() const override { return UserTypeId::kAdminUser; }
 };
 
+//--
+// GusetUser
+//--
+class GuestUser
+{
+public:
+	GuestUser(std::string&mail):m_email(mail){}
+
+	const std::string get_email() const { return m_email; }
+	const UserTypeId get_user_type(){ return UserTypeId::kGuestUser; }
+
+private:
+	std::string m_email; // Users email address.
+};

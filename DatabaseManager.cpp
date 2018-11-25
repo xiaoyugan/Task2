@@ -104,6 +104,22 @@ void DatabaseManager::load_data()
 	{
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
+
+	//从表中读取游客数据
+	std::ifstream gusets_stream("guestlist.csv", std::ios::in | std::ios::_Nocreate);
+	if (!gusets_stream.fail())
+	{
+		std::string mail;
+		while (std::getline(gusets_stream,mail, '\n'))
+		{
+			add_guest(new GuestUser(mail));
+		}
+		gusets_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
 }
 
 //存储玩家游玩的数据这些
@@ -154,6 +170,22 @@ void DatabaseManager::store_playeruser_data(UserBase*puser)
 		}
 		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() <<","<<pUser->get_available_funds()<<","<< str_gamelist << std::endl;
 		user_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+}
+
+void DatabaseManager::store_guest_data(GuestUser*gUser)
+{
+	std::ofstream guest_stream;
+	//打开要输出的文件
+	guest_stream.open("guestlist.csv", std::ios::out | std::ios::app);
+	if (!guest_stream.fail())
+	{
+		guest_stream << gUser->get_email()<< std::endl;
+		guest_stream.close();
 	}
 	else
 	{
@@ -222,6 +254,14 @@ void DatabaseManager::add_user(UserBase* pUser)
 	}
 }
 
+void DatabaseManager::add_guest(GuestUser*gUser)
+{
+	if (gUser)
+	{
+		m_gUsers.insert(std::make_pair(gUser->get_email(),gUser));
+	}
+}
+
 void DatabaseManager::add_and_store_adminuser(UserBase* pUser)
 {
 	add_user(pUser);
@@ -240,10 +280,29 @@ void DatabaseManager::add_and_store_game(Game&rGame)
 	store_game_data(rGame);
 }
 
+void DatabaseManager::add_and_stroe_guest(GuestUser*gUser)
+{
+	add_guest(gUser);
+	store_guest_data(gUser);
+}
+
 UserBase* DatabaseManager::find_user(const UserBase::Username& username)
 {
 	auto it = m_users.find(username);
 	if (it != m_users.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+GuestUser*DatabaseManager::find_guest(const std::string&mail)
+{
+	auto it = m_gUsers.find(mail);
+	if (it != m_gUsers.end())
 	{
 		return it->second;
 	}

@@ -74,6 +74,29 @@ int MenuSystem::run_login_screen()
 	return 0;
 }
 
+int MenuSystem::run_guest_screen()
+{
+	m_gUser = nullptr;
+	std::string mail;
+	std::cout << "Please input your email\n";
+	std::cin >> mail;
+	auto gUser = DatabaseManager::instance().find_guest(mail);
+	if (!gUser)
+	{
+		DatabaseManager::instance().add_and_stroe_guest(new GuestUser(mail));
+		auto guser= DatabaseManager::instance().find_guest(mail);
+		std::cout << "Hi " << guser->get_email() << "\n";
+		m_gUser = guser;
+	}
+	else
+	{
+		std::cout << "Hi " << gUser->get_email() << "\n";
+		std::cout << "This is not your first landing! Welcome to Ragister! \n";
+		m_gUser = gUser;
+	}
+	return 0;
+}
+
 int MenuSystem::run_admin_user_menu()
 {
 	AdminUser* pAdminUser = static_cast<AdminUser*>(m_pUser);
@@ -526,6 +549,41 @@ int MenuSystem::run_player_user_menu()
 	return 0;
 }
 
+int MenuSystem::run_guest_user_menu()
+{
+
+	int result = 0;
+	do
+	{
+		std::cout << "Guest Menu (" << m_gUser->get_email() << ")\n";
+		std::cout << "(1) List All Games\n";
+		std::cout << "(2) Sign-up\n";
+		std::cout << "(q) Exit\n";
+
+		char option;
+		std::cin >> option;
+
+		switch (option)
+		{
+		case'1':
+		{
+			list_all_games();
+			break;
+		}
+		case'2':
+		{
+			std::cout << "The ¡®Sign-up¡¯ facility is not to be implemented here\n\n";
+			break;
+		}
+		case 'q': result = -1; break;
+		default:  std::cout << "INAVLID OPTION\n"; break;
+		}
+	} while (result == 0);
+
+	m_gUser = nullptr;
+	return 0;
+}
+
 int MenuSystem::run_unknown_user_menu()
 {
 	// in this menu we get the username and password.
@@ -534,6 +592,7 @@ int MenuSystem::run_unknown_user_menu()
 	std::cout << "Main Menu\n";
 	std::cout << "(1) List All Games\n";
 	std::cout << "(2) Login\n";
+	std::cout << "(3) Guest\n";
 	std::cout << "(q) Quit\n";
 
 	char option;
@@ -543,6 +602,7 @@ int MenuSystem::run_unknown_user_menu()
 	{
 	case '1': list_all_games(); break;
 	case '2': run_login_screen(); break;
+	case '3': run_guest_screen(); break;
 	case 'q': result = -1;  break;
 	default:  std::cout << "INAVLID OPTION\n"; break;
 	}
@@ -555,11 +615,11 @@ int MenuSystem::run()
 	int result = 0;
 	do
 	{
-		if (!m_pUser)
+		if (!m_pUser&&!m_gUser)
 		{
 			result = run_unknown_user_menu();
 		}
-		else
+		else if(m_pUser&&!m_gUser)
 		{
 			switch (m_pUser->get_user_type())
 			{
@@ -567,6 +627,10 @@ int MenuSystem::run()
 				case UserTypeId::kAdminUser: result = run_admin_user_menu(); break;
 				default: result = -1; break;
 			}
+		}
+		else if (!m_pUser&& m_gUser)
+		{		
+			result = run_guest_user_menu();
 		}
 	} while (result == 0);
 
