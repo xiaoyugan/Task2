@@ -5,7 +5,9 @@
 #include "DatabaseManager.h"
 #include <fstream> 
 #include <string>
-#include<sstream>
+#include <sstream>
+//#include <time.h>
+#include <atltime.h>
 #include <iostream>
 
 DatabaseManager::DatabaseManager()
@@ -326,5 +328,103 @@ void DatabaseManager::search_game(const int i, const std::string s, const double
 	if (!is1&&!is2&&!is3)
 	{
 		std::cout << "Search for games that don't meet the criteria\n\n";
+	}
+}
+
+void DatabaseManager::store_purchase_history(PlayerUser*pUser, Game*rGame)
+{
+	std::string cur_time = get_time();
+	std::ofstream purchase_stream;
+	purchase_stream.open("purchaseHistory.csv", std::ios::out | std::ios::app);
+	if (!purchase_stream.fail())
+	{
+		purchase_stream <<pUser->get_username()<<","<<"Game Id: "<< rGame->get_game_id() << ","<<"Game Title: " << rGame->get_title() <<","<<"Purchase Time: "<<cur_time<< std::endl;
+		purchase_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+}
+
+void DatabaseManager::check_purchase_history()
+{
+	//从表中读取游戏数据
+	std::ifstream purchase_stream("purchaseHistory.csv", std::ios::in);
+	if (!purchase_stream.fail())
+	{
+		std::string pur_history;
+		while (std::getline(purchase_stream, pur_history, '\n'))
+		{
+			if (!pur_history.empty())
+			{
+				std::cout << pur_history << std::endl;
+			}
+			else
+			{
+				std::cout << "No Purchase History" << std::endl;
+			}			
+		}
+		purchase_stream.close();
+	}
+	else
+	{
+		std::cout << "No Purchase History" << std::endl;
+	}
+}
+
+std::string DatabaseManager::get_time()
+{
+	CTime tmp;
+	tmp = CTime::GetCurrentTime();
+	int y = tmp.GetYear();
+	int m = tmp.GetMonth();
+	int d = tmp.GetDay();
+	int h = tmp.GetHour();
+	int mi = tmp.GetMinute();
+	int se = tmp.GetSecond();
+	std::string cur_time = std::to_string(y) + "/" + std::to_string(m) +"/"+ std::to_string(d) + " " + std::to_string(h) + ":" + std::to_string(mi) + ":" + std::to_string(se);
+	return cur_time;
+}
+
+void DatabaseManager::store_player_activityInfo(PlayerUser*pUser, Game*rGame, double&time,std::string&start_time)
+{
+	std::ofstream info_stream;
+	std::string play_time = std::to_string(time) + " s";
+	info_stream.open("activityInfo.csv", std::ios::out | std::ios::app);
+	if (!info_stream.fail())
+	{
+		info_stream << rGame->get_game_id() << "," << "Game Title: " << rGame->get_title() << "," <<"Player: "<<pUser->get_username() << "," <<"Time to Play: "<<start_time<<","<< "Game Time: " << play_time << std::endl;
+		info_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+}
+
+void DatabaseManager::check_player_activityInfo()
+{
+	//从表中读取游戏数据
+	std::ifstream info_stream("activityInfo.csv", std::ios::in);
+	if (!info_stream.fail())
+	{
+		std::string info;
+		while (std::getline(info_stream, info, '\n'))
+		{
+			if (!info.empty())
+			{
+				std::cout << info << std::endl;
+			}
+			else
+			{
+				std::cout << "No Activity Info" << std::endl;
+			}
+		}
+		info_stream.close();
+	}
+	else
+	{
+		std::cout << "No Activity Info" << std::endl;
 	}
 }

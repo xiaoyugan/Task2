@@ -76,6 +76,16 @@ public:
 
 	void search_game(const int i,const std::string s=" ", const double pri_upper = 0, const double pri_lower = 0);
 
+	void store_purchase_history(PlayerUser*pUser,Game*rGame);
+
+	void check_purchase_history();
+
+	void store_player_activityInfo(PlayerUser*pUser, Game*rGame,double&time,std::string&start_time);
+
+	void check_player_activityInfo();
+
+	std::string get_time();
+
 private:
 	// Constructors are private for singleton pattern.
 	DatabaseManager();

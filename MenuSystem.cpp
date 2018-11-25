@@ -3,7 +3,7 @@
 //Student number: 27042120 
 
 #include "MenuSystem.h"
-
+#include <ctime>
 MenuSystem& MenuSystem::instance()
 {
 	static MenuSystem s_instance;
@@ -87,6 +87,8 @@ int MenuSystem::run_admin_user_menu()
 		std::cout << "(4) Add User\n";
 		std::cout << "(5) Modify Game\n";//todo
 		std::cout << "(6) Remove Game\n";//todo
+		std::cout << "(7) Check The Game Purchase History\n";
+		std::cout << "(8) Check Player Activity Information\n";
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -116,7 +118,6 @@ int MenuSystem::run_admin_user_menu()
 				std::cout << "Please Input New Game Description\n";
 				std::cin.ignore();
 				std::getline(std::cin, g_desc, '\n');
-				//std::cin.getline(std::cin, g_desc);
 				DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_price, g_desc));
 				std::cout << "Added successfully\n";
 			}
@@ -234,6 +235,17 @@ int MenuSystem::run_admin_user_menu()
 			std::cout << "Remove the game successfully";
 			break;
 		}
+		case'7':
+		{
+			//CHECK THE GAME PURCHASE HISTORY
+			DatabaseManager::instance().check_purchase_history();
+			break;
+		}
+		case'8':
+		{
+			DatabaseManager::instance().check_player_activityInfo();
+			break;
+		}
 		case 'q': result = -1; break;
 		default:  std::cout << "INAVLID OPTION\n"; break;
 		}
@@ -313,6 +325,7 @@ int MenuSystem::run_player_user_menu()
 							pPlayerUser->add_ownedGame(id);
 						}
 						DatabaseManager::instance().update_player_data();
+						DatabaseManager::instance().store_purchase_history(pPlayerUser, rGame);
 						std::cout << "Buy successfully\n\n";
 					}
 					else
@@ -464,6 +477,12 @@ int MenuSystem::run_player_user_menu()
 				{
 					//play
 					auto rGame = DatabaseManager::instance().find_game(id);
+					std::string start_time = DatabaseManager::instance().get_time();
+					//start
+					time_t begin, end;
+					double dur;
+					begin = clock();
+
 					std::cout << "You are playing " << rGame->get_title() << "\n\n";
 					char quit;
 					do
@@ -473,6 +492,10 @@ int MenuSystem::run_player_user_menu()
 						std::cout << "You are playing " << rGame->get_title() << "\n\n";						
 					} while (quit == 'N' || quit == 'n');
 					std::cout << "You have successfully exited\n\n";
+					//end
+					end = clock();
+					dur = double(end - begin) / CLOCKS_PER_SEC;
+					DatabaseManager::instance().store_player_activityInfo(pPlayerUser,rGame,dur,start_time);
 				}
 				else
 				{
