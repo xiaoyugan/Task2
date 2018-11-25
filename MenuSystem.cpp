@@ -19,6 +19,23 @@ void MenuSystem::list_all_games() const
 	DatabaseManager::instance().visit_games(gameVisitorLambda);
 }
 
+void MenuSystem::list_my_games(PlayerUser*pUser)const
+{
+	auto mygames = pUser->get_game_list();
+	if (mygames.front() != 0)
+	{
+		for (auto it : mygames)
+		{
+			auto rGame = DatabaseManager::instance().find_game(it);
+			std::cout << "id: " << rGame->get_game_id() << ", title: " + rGame->get_title() << ", price: " << rGame->get_game_Price() << ", description: " + rGame->get_game_desc() << "\n";
+		}
+	}
+	else
+	{
+		std::cout << "You do not have any games\n\n";
+	}
+}
+
 void MenuSystem::list_all_users() const
 {
 	auto userVisitorLambda = [](const UserBase& rUser) {
@@ -254,19 +271,7 @@ int MenuSystem::run_player_user_menu()
 		case '2': 
 		{
 			//"(2) List My Games\n";
-			auto mygames=pPlayerUser->get_game_list();
-			if (mygames.front()!=0)
-			{
-				for (auto it : mygames)
-				{
-					auto rGame = DatabaseManager::instance().find_game(it);
-					std::cout << "id: " << rGame->get_game_id() << ", title: " + rGame->get_title() << ", price: " << rGame->get_game_Price() << ", description: " + rGame->get_game_desc() << "\n";
-				}
-			}
-			else 
-			{
-				std::cout << "You do not have any games\n\n";
-			}
+			list_my_games(pPlayerUser);
 			break;
 		}
 		case '3': 
@@ -361,6 +366,8 @@ int MenuSystem::run_player_user_menu()
 		case'5':
 		{
 			//give away
+			std::cout << "Your games:\n";
+			list_my_games(pPlayerUser);
 			std::string u_name;
 			std::cout << "Input the name you want to give it to\n";
 			std::cin >> u_name;
@@ -374,17 +381,17 @@ int MenuSystem::run_player_user_menu()
 					int id;
 					std::cout << "Please select one of your games you want to give away and Input the id\n";
 					std::cin >> id;
-					bool owm = false;
+					bool own = false;
 					//判断是否拥有
 					for (int it : pPlayerUser->get_game_list())
 					{
 						if (id == it)
 						{
-							owm = true;
+							own = true;
 							break;
 						}
 					}
-					if (owm)
+					if (own)
 					{
 						//判断对方是否有这个游戏
 						PlayerUser* pUser = static_cast<PlayerUser*>(user);
@@ -425,6 +432,31 @@ int MenuSystem::run_player_user_menu()
 		case'6':
 		{
 			//play game
+			int id;
+			std::cout << "Your games:\n";
+			list_my_games(pPlayerUser);
+			std::cout << "\nWhich game do you want to play?Input the game id\n";
+			std::cin >> id;
+			bool own = false;
+			//判断是否拥有
+			for (int it : pPlayerUser->get_game_list())
+			{
+				if (id == it)
+				{
+					own = true;
+					break;
+				}
+			}
+			if (own)
+			{
+				//play
+				auto rGame = DatabaseManager::instance().find_game(id);
+				std::cout << "You are playing "<<rGame->get_title()<<"\n";
+			}
+			else
+			{
+				std::cout << "You do not have this game\n\n";
+			}
 			break;
 		}
 		case '7': 
