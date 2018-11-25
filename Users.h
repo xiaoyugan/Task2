@@ -76,7 +76,14 @@ public:
 
 	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
 
-	void pop_ownedGame(const Game::GameId& val) { m_ownedGames.remove(val); }
+	void pop_ownedGame(const Game::GameId& val) 
+	{ 
+		if (m_ownedGames.size() == 1)
+		{
+			m_ownedGames.push_back(0);
+		}
+		m_ownedGames.remove(val); 
+	}
 
 private:
 	GameList m_ownedGames; // List of owned games.

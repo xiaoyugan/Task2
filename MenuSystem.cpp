@@ -289,8 +289,8 @@ int MenuSystem::run_player_user_menu()
 			if (!isin)
 			{
 				auto rGame = DatabaseManager::instance().find_game(id);
-				int game_price = rGame->get_game_Price();
-				int available_funds = pPlayerUser->get_available_funds();
+				double game_price = rGame->get_game_Price();
+				double available_funds = pPlayerUser->get_available_funds();
 				if (game_price <= available_funds)
 				{
 					//如果钱够，就买下
@@ -323,6 +323,65 @@ int MenuSystem::run_player_user_menu()
 		case'5':
 		{
 			//give away
+			std::string u_name;
+			std::cout << "Input the name you want to give it to\n\n";
+			std::cin >> u_name;
+			auto user = DatabaseManager::instance().find_user(u_name);
+			//判断用户是否存在，而且为player
+			if (user)
+			{
+				if (user->get_user_type() == UserTypeId::kPlayerUser)
+				{
+					//送送送					
+					int id;
+					std::cout << "Please select one of your games you want to give away and Input the id\n";
+					std::cin >> id;
+					bool owm = false;
+					//判断是否拥有
+					for (int it : pPlayerUser->get_game_list())
+					{
+						if (id == it)
+						{
+							owm = true;
+							break;
+						}
+					}
+					if (owm)
+					{
+						//判断对方是否有这个游戏
+						PlayerUser* pUser = static_cast<PlayerUser*>(user);
+						bool friendown = false;
+						for (int it : pUser->get_game_list())
+						{
+							if (id == it)
+							{
+								friendown = true;
+								std::cout << "Your friend already owns the game\n\n";
+								break;
+							}
+						}
+						if (!friendown)
+						{
+							pPlayerUser->pop_ownedGame(id);
+							pUser->add_ownedGame(id);
+							DatabaseManager::instance().update_player_data();
+							std::cout << "Give away successfully\n\n";
+						}						
+					}
+					else
+					{
+						std::cout << "You do not have this game\n\n";
+					}
+				}
+				else if (user->get_user_type() == UserTypeId::kAdminUser)
+				{
+					std::cout << "You can't give the game to the Admin\n\n";
+				}
+			}
+			else
+			{
+				std::cout << "The user does not exist\n\n";
+			}
 			break;
 		}
 		case'6':
