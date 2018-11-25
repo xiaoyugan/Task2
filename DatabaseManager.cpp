@@ -5,6 +5,7 @@
 #include "DatabaseManager.h"
 #include <fstream> 
 #include <string>
+#include<sstream>
 #include <iostream>
 
 DatabaseManager::DatabaseManager()
@@ -79,11 +80,20 @@ void DatabaseManager::load_data()
 		std::string u_password;
 		std::string u_mail;
 		std::string u_account_funds;
-		while (std::getline(player_stream, u_type, ',') && std::getline(player_stream, u_name, ',') && std::getline(player_stream, u_password, ',') && std::getline(player_stream, u_mail, ',')&&std::getline(player_stream,u_account_funds,'\n'))
+		std::string u_owned_game;
+		while (std::getline(player_stream, u_type, ',') && std::getline(player_stream, u_name, ',') && std::getline(player_stream, u_password, ',') && std::getline(player_stream, u_mail, ',')&&std::getline(player_stream,u_account_funds,',')&&std::getline(player_stream,u_owned_game,'\n'))
 		{
 			if (std::stoi(u_type) == 1)
 			{
-				add_user(new PlayerUser(u_name, u_password, u_mail, std::stod(u_account_funds)));
+				std::list<int>mygame;
+				std::stringstream iss(u_owned_game);
+				int game;
+				while(iss>>game)
+				{
+					mygame.push_back(game);
+				}
+				//split<std::list<int>>(u_owned_game, mygame, '//');
+				add_user(new PlayerUser(u_name, u_password, u_mail, std::stod(u_account_funds),mygame));
 			}
 		}
 		player_stream.close();
@@ -127,7 +137,20 @@ void DatabaseManager::store_playeruser_data(UserBase*puser)
 	user_stream.open("playerlist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
-		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() <<","<<pUser->get_available_funds()<< std::endl;
+		std::string str_gamelist;
+		std::list<Game::GameId>my_game = pUser->get_game_list();
+		if (my_game.front()!=0)
+		{
+			for (int it : my_game)
+			{
+				str_gamelist = std::to_string(it) + " ";
+			}
+		}
+		else
+		{
+			str_gamelist = "0";
+		}
+		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() <<","<<pUser->get_available_funds()<<","<< str_gamelist << std::endl;
 		user_stream.close();
 	}
 	else
@@ -150,6 +173,12 @@ void DatabaseManager::store_game_data(const Game &rGame)
 	{
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}	
+}
+
+void DatabaseManager::store_owned_games(UserBase*User)
+{
+	PlayerUser* pUser = static_cast<PlayerUser*>(User);
+
 }
 
 // 防止添加完成后没有正常退出造成的数据丢失

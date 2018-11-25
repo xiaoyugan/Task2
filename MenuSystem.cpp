@@ -119,12 +119,20 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> u_mail;
 			switch (op)
 			{
-			case'1':DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail)); 
-					std::cout << "Added successfully\n"; 
-					break;
-			case'2':DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, u_mail,0.0));
-					std::cout << "Added successfully\n";
-					break;
+			case'1':
+			{
+				DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail));
+				std::cout << "Added successfully\n";
+				break;
+			}				
+			case'2':
+			{
+				std::list<Game::GameId>gamelist;//默认初始化为空
+				gamelist.push_back(0);
+				DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, u_mail, 0.0, gamelist));
+				std::cout << "Added successfully\n";
+				break;
+			}				
 			default:std::cout<< "INAVLID OPTION\n"; break;
 			}
 			break;
@@ -227,7 +235,7 @@ int MenuSystem::run_player_user_menu()
 		{
 			//"(2) List My Games\n";
 			auto mygames=pPlayerUser->get_game_list();
-			if (!mygames.empty())
+			if (mygames.front()!=0)
 			{
 				for (auto it : mygames)
 				{

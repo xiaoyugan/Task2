@@ -29,6 +29,8 @@ public:
 
 	void store_playeruser_data(UserBase*pUser);
 
+	void store_owned_games(UserBase*pUser);
+
 	void update_player_data();
 
 	// Real-time store games (app)
@@ -71,6 +73,16 @@ public:
 	{
 		for (auto it : m_games) { func(it.second); }
 	}
+
+	/*template <class Container>
+	void split(const std::string& str, Container& cont, char delim = ' ')
+	{
+		std::stringstream ss(str);
+		std::string token;
+		while (std::getline(ss, token, delim)) {
+			cont.push_back(std::stoi(token));
+		}
+	}*/
 
 private:
 	// Constructors are private for singleton pattern.

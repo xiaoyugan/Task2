@@ -59,9 +59,10 @@ public:
 
 	// inherit the constructor.
 	//using UserBase::UserBase;
-	PlayerUser(const Username& username, const std::string& password, const std::string& email, const double &accountFunds)
+	PlayerUser(const Username& username, const std::string& password, const std::string& email, const double&accountFunds,const GameList& mygamelist)
 		:UserBase(username, password, email)
 		, m_accountFunds(accountFunds)
+		,m_ownedGames(mygamelist)
 	{}
 
 	// define the specific user type.
