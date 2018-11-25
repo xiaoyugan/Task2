@@ -318,13 +318,51 @@ int MenuSystem::run_player_user_menu()
 		case'4':
 		{
 			//search game
+			char how;
+			std::cout << "How do you want to search\n"
+				<< "(1)By title\n"
+				<< "(2)By description\n"
+				<< "(3)By price\n";
+			std::cin >> how;
+			switch (how)
+			{
+			case'1':
+			{
+				std::cout << "Please input the title you want to search\n";
+				std::string s_title;
+				std::cin.ignore();
+				std::getline(std::cin, s_title, '\n');
+				DatabaseManager::instance().search_game(1,s_title);
+				break;
+			}
+			case'2':
+			{
+				std::cout << "Please input the description you want to search\n";
+				std::string s_description;
+				std::cin.ignore();
+				std::getline(std::cin, s_description, '\n');
+				DatabaseManager::instance().search_game(2, s_description);
+				break;
+			}
+			case'3':
+			{
+				double pri_upper, pri_lower;
+				std::cout << "Please input the price cap\n";
+				std::cin >> pri_upper;
+				std::cout << "Please input the price floor\n";
+				std::cin >> pri_lower;
+				DatabaseManager::instance().search_game(3," ", pri_upper, pri_lower);
+				break;
+			}
+			default:  std::cout << "INAVLID OPTION\n"; break;
+			}
 			break;
 		}
 		case'5':
 		{
 			//give away
 			std::string u_name;
-			std::cout << "Input the name you want to give it to\n\n";
+			std::cout << "Input the name you want to give it to\n";
 			std::cin >> u_name;
 			auto user = DatabaseManager::instance().find_user(u_name);
 			//判断用户是否存在，而且为player

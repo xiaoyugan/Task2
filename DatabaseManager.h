@@ -74,6 +74,8 @@ public:
 		for (auto it : m_games) { func(it.second); }
 	}
 
+	void search_game(const int i,const std::string s=" ", const double pri_upper = 0, const double pri_lower = 0);
+
 private:
 	// Constructors are private for singleton pattern.
 	DatabaseManager();

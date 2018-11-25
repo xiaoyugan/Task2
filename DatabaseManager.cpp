@@ -274,3 +274,57 @@ Game* DatabaseManager::find_game(const Game::GameId gameid)
 		return nullptr;
 	}
 }
+
+void DatabaseManager::search_game(const int i, const std::string s, const double pri_upper, const double pri_lower )
+{
+	bool is1 = false;
+	bool is2 = false;
+	bool is3 = false;
+	for (auto it : m_games)
+	{
+		auto rGame = it.second;
+		switch (i)
+		{
+		case 1:
+		{
+			//search by title
+			std::string title = rGame.get_title();
+			std::string::size_type idx = title.find(s);
+			if (idx != std::string::npos)
+			{
+				std::cout << "id: " << rGame.get_game_id() << ", title: " + rGame.get_title() << ", price: " << rGame.get_game_Price() << ", description: " + rGame.get_game_desc() << "\n";
+				is1 = true;
+			}
+			break;
+		}
+		case 2:
+		{
+			//search by description
+			std::string desc = rGame.get_game_desc();
+			std::string::size_type idx = desc.find(s);
+			if (idx != std::string::npos)
+			{
+				std::cout << "id: " << rGame.get_game_id() << ", title: " + rGame.get_title() << ", price: " << rGame.get_game_Price() << ", description: " + rGame.get_game_desc() << "\n";
+				is2 = true;
+			}
+			break;
+		}
+		case 3:
+		{
+			//search by price
+			double price = rGame.get_game_Price();
+			if (price <= pri_upper && price >= pri_lower)
+			{
+				std::cout << "id: " << rGame.get_game_id() << ", title: " + rGame.get_title() << ", price: " << rGame.get_game_Price() << ", description: " + rGame.get_game_desc() << "\n";
+				is3 = true;
+			}
+			break;
+		}
+		default:std::cout << "Parameter error\n"; break;
+		}
+	}
+	if (!is1&&!is2&&!is3)
+	{
+		std::cout << "Search for games that don't meet the criteria\n\n";
+	}
+}
