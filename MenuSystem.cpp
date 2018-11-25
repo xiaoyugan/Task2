@@ -294,28 +294,35 @@ int MenuSystem::run_player_user_menu()
 			if (!isin)
 			{
 				auto rGame = DatabaseManager::instance().find_game(id);
-				double game_price = rGame->get_game_Price();
-				double available_funds = pPlayerUser->get_available_funds();
-				if (game_price <= available_funds)
+				if (rGame)
 				{
-					//如果钱够，就买下
-					pPlayerUser->set_accountFunds(available_funds - game_price);
-					//添进游戏库(判断第一个值是不是0)
-					if (pPlayerUser->get_game_list().front() != 0)
+					double game_price = rGame->get_game_Price();
+					double available_funds = pPlayerUser->get_available_funds();
+					if (game_price <= available_funds)
 					{
-						pPlayerUser->add_ownedGame(id);
+						//如果钱够，就买下
+						pPlayerUser->set_accountFunds(available_funds - game_price);
+						//添进游戏库(判断第一个值是不是0)
+						if (pPlayerUser->get_game_list().front() != 0)
+						{
+							pPlayerUser->add_ownedGame(id);
+						}
+						else
+						{
+							pPlayerUser->pop_ownedGame(0);
+							pPlayerUser->add_ownedGame(id);
+						}
+						DatabaseManager::instance().update_player_data();
+						std::cout << "Buy successfully\n\n";
 					}
 					else
 					{
-						pPlayerUser->pop_ownedGame(0);
-						pPlayerUser->add_ownedGame(id);
+						std::cout << "You do not have enough money\n\n";
 					}
-					DatabaseManager::instance().update_player_data();
-					std::cout << "Buy successfully\n\n";
 				}
 				else
 				{
-					std::cout << "You do not have enough money\n\n";
+					std::cout << "Vapor do not have this game\n\n";
 				}
 			}			
 			break;
@@ -432,31 +439,46 @@ int MenuSystem::run_player_user_menu()
 		case'6':
 		{
 			//play game
-			int id;
-			std::cout << "Your games:\n";
-			list_my_games(pPlayerUser);
-			std::cout << "\nWhich game do you want to play?Input the game id\n";
-			std::cin >> id;
-			bool own = false;
-			//判断是否拥有
-			for (int it : pPlayerUser->get_game_list())
+			if (pPlayerUser->get_game_list().front()==0)
 			{
-				if (id == it)
-				{
-					own = true;
-					break;
-				}
-			}
-			if (own)
-			{
-				//play
-				auto rGame = DatabaseManager::instance().find_game(id);
-				std::cout << "You are playing "<<rGame->get_title()<<"\n";
+				std::cout << "You do not have any games\n\n";
 			}
 			else
 			{
-				std::cout << "You do not have this game\n\n";
-			}
+				int id;
+				std::cout << "Your games:\n";
+				list_my_games(pPlayerUser);
+				std::cout << "\nWhich game do you want to play?Input the game id\n";
+				std::cin >> id;
+				bool own = false;
+				//判断是否拥有
+				for (int it : pPlayerUser->get_game_list())
+				{
+					if (id == it)
+					{
+						own = true;
+						break;
+					}
+				}
+				if (own)
+				{
+					//play
+					auto rGame = DatabaseManager::instance().find_game(id);
+					std::cout << "You are playing " << rGame->get_title() << "\n\n";
+					char quit;
+					do
+					{
+						std::cout << "Quit the game(Y/N)\n";
+						std::cin >> quit;
+						std::cout << "You are playing " << rGame->get_title() << "\n\n";						
+					} while (quit == 'N' || quit == 'n');
+					std::cout << "You have successfully exited\n\n";
+				}
+				else
+				{
+					std::cout << "You do not have this game\n\n";
+				}
+			}			
 			break;
 		}
 		case '7': 
