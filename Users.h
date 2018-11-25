@@ -74,6 +74,10 @@ public:
 
 	void set_accountFunds(const double& val) { m_accountFunds = val; }
 
+	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
+
+	void pop_ownedGame(const Game::GameId& val) { m_ownedGames.remove(val); }
+
 private:
 	GameList m_ownedGames; // List of owned games.
 	double m_accountFunds; // The players available funds.

@@ -222,7 +222,10 @@ int MenuSystem::run_player_user_menu()
 		std::cout << "(1) List All Games\n";
 		std::cout << "(2) List My Games\n";
 		std::cout << "(3) Buy Game\n";
-		std::cout << "(4) Add Funds\n";
+		std::cout << "(4) Search Game\n";
+		std::cout << "(5) Give Away\n";
+		std::cout << "(6) Play Game\n";
+		std::cout << "(7) Add Funds\n";
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -253,9 +256,52 @@ int MenuSystem::run_player_user_menu()
 		{
 			//"(3) Buy Game\n";
 			list_all_games();
+			//std::cout << "\nYou owned Game`s id:\n";
+			//tooodooooo加个购买游戏时判断是否已经有了的判定
+			int id;
+			std::cout << "Please input the id that the game you want to buy\n";
+			std::cin >> id;
+			auto rGame=DatabaseManager::instance().find_game(id);
+			int game_price = rGame->get_game_Price();
+			int available_funds = pPlayerUser->get_available_funds();
+			if (game_price<=available_funds)
+			{
+				//如果钱够，就买下
+				pPlayerUser->set_accountFunds(available_funds-game_price);
+				//添进游戏库(判断第一个值是不是0)
+				if (pPlayerUser->get_game_list().front() != 0)
+				{
+					pPlayerUser->add_ownedGame(id);
+				}
+				else
+				{
+					pPlayerUser->pop_ownedGame(0);
+					pPlayerUser->add_ownedGame(id);
+				}
+				DatabaseManager::instance().update_player_data();
+			}
+			else
+			{
+				std::cout << "You do not have enough money\n\n";
+			}
 			break;
 		}
-		case '4': 
+		case'4':
+		{
+			//search game
+			break;
+		}
+		case'5':
+		{
+			//give away
+			break;
+		}
+		case'6':
+		{
+			//play game
+			break;
+		}
+		case '7': 
 		{
 			//(4) Add Funds\n"
 			double topup;
