@@ -143,7 +143,7 @@ void DatabaseManager::store_playeruser_data(UserBase*puser)
 		{
 			for (int it : my_game)
 			{
-				str_gamelist = std::to_string(it) + " ";
+				str_gamelist = str_gamelist+std::to_string(it) + " ";
 			}
 		}
 		else

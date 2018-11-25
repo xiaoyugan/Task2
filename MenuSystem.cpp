@@ -121,27 +121,36 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> op;
 			std::cout << "Please Input New User Name\n";
 			std::cin >> u_name;
-			std::cout << "Please Input New User Passerword\n";
-			std::cin >> u_password;
-			std::cout<< "Please Input New User Email\n";
-			std::cin >> u_mail;
-			switch (op)
+			//判断用户是否存在
+			if (!DatabaseManager::instance().find_user(u_name))
 			{
-			case'1':
+
+				std::cout << "Please Input New User Passerword\n";
+				std::cin >> u_password;
+				std::cout << "Please Input New User Email\n";
+				std::cin >> u_mail;
+				switch (op)
+				{
+				case'1':
+				{
+					DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail));
+					std::cout << "Added successfully\n";
+					break;
+				}
+				case'2':
+				{
+					std::list<Game::GameId>gamelist;//默认初始化为空
+					gamelist.push_back(0);
+					DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, u_mail, 0.0, gamelist));
+					std::cout << "Added successfully\n";
+					break;
+				}
+				default:std::cout << "INAVLID OPTION\n"; break;
+				}
+			}
+			else 			
 			{
-				DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail));
-				std::cout << "Added successfully\n";
-				break;
-			}				
-			case'2':
-			{
-				std::list<Game::GameId>gamelist;//默认初始化为空
-				gamelist.push_back(0);
-				DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, u_mail, 0.0, gamelist));
-				std::cout << "Added successfully\n";
-				break;
-			}				
-			default:std::cout<< "INAVLID OPTION\n"; break;
+				std::cout << "The user already exists\n\n";
 			}
 			break;
 		}
@@ -264,34 +273,46 @@ int MenuSystem::run_player_user_menu()
 		{
 			//"(3) Buy Game\n";
 			list_all_games();
-			//std::cout << "\nYou owned Game`s id:\n";
-			//tooodooooo加个购买游戏时判断是否已经有了的判定
 			int id;
 			std::cout << "Please input the id that the game you want to buy\n";
 			std::cin >> id;
-			auto rGame=DatabaseManager::instance().find_game(id);
-			int game_price = rGame->get_game_Price();
-			int available_funds = pPlayerUser->get_available_funds();
-			if (game_price<=available_funds)
+			bool isin = false;
+			for (int it : pPlayerUser->get_game_list())
 			{
-				//如果钱够，就买下
-				pPlayerUser->set_accountFunds(available_funds-game_price);
-				//添进游戏库(判断第一个值是不是0)
-				if (pPlayerUser->get_game_list().front() != 0)
+				if (id == it)
 				{
-					pPlayerUser->add_ownedGame(id);
+					std::cout << "You already own the game\n\n";
+					isin = true;
+					break;
+				}
+			}
+			if (!isin)
+			{
+				auto rGame = DatabaseManager::instance().find_game(id);
+				int game_price = rGame->get_game_Price();
+				int available_funds = pPlayerUser->get_available_funds();
+				if (game_price <= available_funds)
+				{
+					//如果钱够，就买下
+					pPlayerUser->set_accountFunds(available_funds - game_price);
+					//添进游戏库(判断第一个值是不是0)
+					if (pPlayerUser->get_game_list().front() != 0)
+					{
+						pPlayerUser->add_ownedGame(id);
+					}
+					else
+					{
+						pPlayerUser->pop_ownedGame(0);
+						pPlayerUser->add_ownedGame(id);
+					}
+					DatabaseManager::instance().update_player_data();
+					std::cout << "Buy successfully\n\n";
 				}
 				else
 				{
-					pPlayerUser->pop_ownedGame(0);
-					pPlayerUser->add_ownedGame(id);
+					std::cout << "You do not have enough money\n\n";
 				}
-				DatabaseManager::instance().update_player_data();
-			}
-			else
-			{
-				std::cout << "You do not have enough money\n\n";
-			}
+			}			
 			break;
 		}
 		case'4':
@@ -315,7 +336,7 @@ int MenuSystem::run_player_user_menu()
 			double topup;
 			std::cout << "Please input the amount you want to top up\n";
 			std::cin >> topup;
-			pPlayerUser->set_accountFunds(topup);
+			pPlayerUser->set_accountFunds(topup+pPlayerUser->get_available_funds());
 			DatabaseManager::instance().update_player_data();
 			std::cout << "Top up successfully\n";
 			break;
