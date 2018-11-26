@@ -59,8 +59,6 @@ class PlayerUser : public UserBase
 public:
 	using GameList = std::list<Game::GameId>;
 
-	// inherit the constructor.
-	//using UserBase::UserBase;
 	PlayerUser(const Username& username, const std::string& password, const std::string& email, const double&accountFunds, const GameList& mygamelist, const int&age)
 		:UserBase(username, password, email)
 		, m_accountFunds(accountFunds)
@@ -93,40 +91,7 @@ public:
 private:
 	GameList m_ownedGames; // List of owned games.
 	double m_accountFunds; // The players available funds.
-	int m_age;
-};
-
-
-class GameStudio : public UserBase
-{
-public:
-	using GameList = std::list<Game::GameId>;
-
-	// inherit the constructor.
-	//using UserBase::UserBase;
-	GameStudio(const Username& username, const std::string& password, const std::string& email, const GameList& mygamelist)
-		:UserBase(username, password, email)
-		, m_ownedGames(mygamelist)
-	{}
-
-	// define the specific user type.
-	virtual const UserTypeId  get_user_type() const override { return UserTypeId::kGameStudio; }
-
-	const GameStudio::GameList& accessible_gamelist() const { return m_ownedGames; }
-
-	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
-
-	void pop_ownedGame(const Game::GameId& val)
-	{
-		if (m_ownedGames.size() == 1)
-		{
-			m_ownedGames.push_back(0);
-		}
-		m_ownedGames.remove(val);
-	}
-
-private:
-	GameList m_ownedGames; // List of owned games.
+	int m_age;// The player`s age.
 };
 
 //--
@@ -143,7 +108,31 @@ public:
 };
 
 //--
-// GusetUser
+// GameStudio who can only access their own games and set a new version number to their games
+//--
+class GameStudio : public UserBase
+{
+public:
+	using GameList = std::list<Game::GameId>;
+
+	GameStudio(const Username& username, const std::string& password, const std::string& email, const GameList& mygamelist)
+		:UserBase(username, password, email)
+		, m_ownedGames(mygamelist)
+	{}
+
+	// define the specific user type.
+	virtual const UserTypeId  get_user_type() const override { return UserTypeId::kGameStudio; }
+
+	const GameStudio::GameList& accessible_gamelist() const { return m_ownedGames; }
+
+	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
+
+private:
+	GameList m_ownedGames; // List of owned games.
+};
+
+//--
+// GusetUser who only have email data
 //--
 class GuestUser
 {
@@ -151,6 +140,7 @@ public:
 	GuestUser(std::string&mail):m_email(mail){}
 
 	const std::string get_email() const { return m_email; }
+	// define the specific user type.
 	const UserTypeId get_user_type(){ return UserTypeId::kGuestUser; }
 
 private:

@@ -3,10 +3,10 @@
 //Student number: 27042120
 
 #include "DatabaseManager.h"
+#include <atltime.h>
 #include <fstream> 
 #include <string>
 #include <sstream>
-#include <atltime.h>
 #include <iostream>
 
 DatabaseManager::DatabaseManager()
@@ -21,6 +21,11 @@ DatabaseManager::~DatabaseManager()
 	{
 		if (it.second) delete it.second;
 	}
+	//delete guest users.
+	for (auto it : m_gUsers)
+	{
+		if (it.second) delete it.second;
+	}
 }
 
 DatabaseManager& DatabaseManager::instance()
@@ -31,7 +36,7 @@ DatabaseManager& DatabaseManager::instance()
 
 void DatabaseManager::load_data()
 {
-	//从表中读取游戏数据
+	//load games from gamelist.csv =>m_games
 	std::ifstream games_stream("gamelist.csv", std::ios::in| std::ios::_Nocreate);
 	if (!games_stream.fail())
 	{
@@ -52,7 +57,7 @@ void DatabaseManager::load_data()
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
 
-	//从表中读取管理员数据
+	//load admin users from adminlist.csv =>m_users
 	std::ifstream admin_stream("adminlist.csv",std::ios::in | std::ios::_Nocreate);
 	if (!admin_stream.fail())
 	{
@@ -74,7 +79,7 @@ void DatabaseManager::load_data()
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
 
-	//从表中读取玩家数据
+	//load player users from playerlist.csv =>m_users
 	std::ifstream player_stream("playerlist.csv", std::ios::in | std::ios::_Nocreate);
 	if (!player_stream.fail())
 	{
@@ -96,7 +101,6 @@ void DatabaseManager::load_data()
 				{
 					mygame.push_back(game);
 				}
-				//split<std::list<int>>(u_owned_game, mygame, '//');
 				add_user(new PlayerUser(u_name, u_password, u_mail, std::stod(u_account_funds),mygame,std::stoi(u_age)));
 			}
 		}
@@ -107,7 +111,7 @@ void DatabaseManager::load_data()
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
 
-	//从表中读取工作室数据
+	//load game studio users from gamestudiolist.csv =>m_users
 	std::ifstream gamestudio_stream("gamestudiolist.csv", std::ios::in | std::ios::_Nocreate);
 	if (!gamestudio_stream.fail())
 	{
@@ -137,7 +141,7 @@ void DatabaseManager::load_data()
 		std::cout << "\nAn error has occurred when opening the file.\n";
 	}
 
-	//从表中读取游客数据
+	//load guest users from guestlist.csv =>m_gUsers
 	std::ifstream gusets_stream("guestlist.csv", std::ios::in | std::ios::_Nocreate);
 	if (!gusets_stream.fail())
 	{
@@ -154,19 +158,9 @@ void DatabaseManager::load_data()
 	}
 }
 
-//存储玩家游玩的数据这些
-void DatabaseManager::store_data()
-{
-	// 存储修改后和删除后的游戏数据
-}
-
-//添加一个就更新一个，实时把用户数据加入到表单，防止程序没有正常结束而使数据丢失
 void DatabaseManager::store_adminuser_data(UserBase* pUser)
 {
-	//store user data 把用户数据再存到表里面
-	//定义文件输出流 
 	std::ofstream user_stream;
-	//打开要输出的文件
 	user_stream.open("adminlist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
@@ -183,7 +177,6 @@ void DatabaseManager::store_playeruser_data(UserBase*puser)
 {
 	PlayerUser* pUser = static_cast<PlayerUser*>(puser);
 	std::ofstream user_stream;
-	//打开要输出的文件
 	user_stream.open("playerlist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
@@ -213,7 +206,6 @@ void DatabaseManager::store_gamestudio_data(UserBase*puser)
 {
 	GameStudio* pUser = static_cast<GameStudio*>(puser);
 	std::ofstream user_stream;
-	//打开要输出的文件
 	user_stream.open("gamestudiolist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
@@ -242,7 +234,6 @@ void DatabaseManager::store_gamestudio_data(UserBase*puser)
 void DatabaseManager::store_guest_data(GuestUser*gUser)
 {
 	std::ofstream guest_stream;
-	//打开要输出的文件
 	guest_stream.open("guestlist.csv", std::ios::out | std::ios::app);
 	if (!guest_stream.fail())
 	{
@@ -255,7 +246,6 @@ void DatabaseManager::store_guest_data(GuestUser*gUser)
 	}
 }
 
-//单个插入
 void DatabaseManager::store_game_data(const Game &rGame)
 {
 	std::ofstream game_stream;
@@ -271,19 +261,13 @@ void DatabaseManager::store_game_data(const Game &rGame)
 	}	
 }
 
-void DatabaseManager::store_owned_games(UserBase*User)
-{
-	PlayerUser* pUser = static_cast<PlayerUser*>(User);
-
-}
-
-// 防止添加完成后没有正常退出造成的数据丢失
 void DatabaseManager::update_games_data()
 {
-	//clean
+	//clean data
 	std::ofstream games_stream;
 	games_stream.open("gamelist.csv", std::ios::out);
 	games_stream.close();
+	//store data
 	for (auto it : m_games)
 	{
 		store_game_data(it.second);
@@ -296,7 +280,7 @@ void DatabaseManager::update_player_data()
 	std::ofstream player_stream;
 	player_stream.open("playerlist.csv", std::ios::out);
 	player_stream.close();
-
+	//store
 	for (auto it : m_users)
 	{
 		if (it.second->get_user_type() == UserTypeId::kPlayerUser)
@@ -322,6 +306,12 @@ void DatabaseManager::add_guest(GuestUser*gUser)
 	{
 		m_gUsers.insert(std::make_pair(gUser->get_email(),gUser));
 	}
+}
+
+void DatabaseManager::add_game(Game&rGame)
+{
+	// Store the game indexed by game id.
+	m_games.insert(std::make_pair(rGame.get_game_id(), rGame));
 }
 
 void DatabaseManager::add_and_store_adminuser(UserBase* pUser)
@@ -380,10 +370,17 @@ GuestUser*DatabaseManager::find_guest(const std::string&mail)
 	}
 }
 
-void DatabaseManager::add_game(Game&rGame)
+Game* DatabaseManager::find_game(const Game::GameId gameid)
 {
-	// Store the game indexed by game id.
-	m_games.insert(std::make_pair(rGame.get_game_id(), rGame));
+	auto it = m_games.find(gameid);
+	if (it != m_games.end())
+	{
+		return &it->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 void DatabaseManager::remove_game(int id)
@@ -397,15 +394,15 @@ void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
 
 	if (puser->get_user_type() == UserTypeId::kPlayerUser)
 	{
+		//if the giver is player
 		PlayerUser* pPlayerUser = static_cast<PlayerUser*>(puser);
-		//判断用户是否存在，而且为player
+		//whether the friend exists
 		if (user)
 		{
 			if (user->get_user_type() == UserTypeId::kPlayerUser)
-			{
-				//送送送					
+			{			
 				bool own = false;
-				//判断是否拥有
+				//if player own the game
 				for (int it : pPlayerUser->get_game_list())
 				{
 					if (id == it)
@@ -416,9 +413,9 @@ void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
 				}
 				if (own)
 				{
-					//判断对方是否有这个游戏
 					PlayerUser* pUser = static_cast<PlayerUser*>(user);
 					bool friendown = false;
+					//if friend own the game
 					for (int it : pUser->get_game_list())
 					{
 						if (id == it)
@@ -428,7 +425,7 @@ void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
 							break;
 						}
 					}
-					//如果对方没有，就判断年龄
+					//if(friend does not have this game){judge the friend`s age}
 					if (!friendown)
 					{
 						auto rGame = DatabaseManager::instance().find_game(id);
@@ -462,15 +459,15 @@ void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
 	}
 	else if (puser->get_user_type() == UserTypeId::kGameStudio)
 	{
+		//if the giver is gamestudio
 		GameStudio*pPlayerUser = static_cast<GameStudio*>(puser);
-		//判断用户是否存在，而且为player
+		////whether the player exists
 		if (user)
 		{
 			if (user->get_user_type() == UserTypeId::kPlayerUser)
-			{
-				//送送送					
+			{				
 				bool own = false;
-				//判断是否拥有
+				//if gamestudio own this game
 				for (int it : pPlayerUser->accessible_gamelist())
 				{
 					if (id == it)
@@ -481,7 +478,7 @@ void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
 				}
 				if (own)
 				{
-					//判断对方是否有这个游戏
+					//if player own the game
 					PlayerUser* pUser = static_cast<PlayerUser*>(user);
 					bool friendown = false;
 					for (int it : pUser->get_game_list())
@@ -493,13 +490,12 @@ void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
 							break;
 						}
 					}
-					//如果对方没有，就判断年龄
+					//if(player does not have this game){judge the player`s age}
 					if (!friendown)
 					{
 						auto rGame = DatabaseManager::instance().find_game(id);
 						if (pUser->get_myage() >= rGame->get_ageRestriction())
 						{
-							//pPlayerUser->pop_ownedGame(id);
 							pUser->add_ownedGame(id);
 							DatabaseManager::instance().update_player_data();
 							std::cout << "Give away successfully\n\n";
@@ -541,7 +537,6 @@ void DatabaseManager::play_game(UserBase*puser, int id)
 		mygames = pUser->accessible_gamelist();
 	}
 	bool own = false;
-	//判断是否拥有
 	for (int it : mygames)
 	{
 		if (id == it)
@@ -577,19 +572,6 @@ void DatabaseManager::play_game(UserBase*puser, int id)
 	else
 	{
 		std::cout << "You do not have this game\n\n";
-	}
-}
-
-Game* DatabaseManager::find_game(const Game::GameId gameid)
-{
-	auto it = m_games.find(gameid);
-	if (it != m_games.end())
-	{
-		return &it->second;
-	}
-	else
-	{
-		return nullptr;
 	}
 }
 
@@ -677,7 +659,6 @@ void DatabaseManager::store_purchase_history(PlayerUser*pUser, Game*rGame)
 
 void DatabaseManager::check_purchase_history()
 {
-	//从表中读取游戏数据
 	std::ifstream purchase_stream("purchaseHistory.csv", std::ios::in);
 	if (!purchase_stream.fail())
 	{
@@ -701,20 +682,6 @@ void DatabaseManager::check_purchase_history()
 	}
 }
 
-std::string DatabaseManager::get_time()
-{
-	CTime tmp;
-	tmp = CTime::GetCurrentTime();
-	int y = tmp.GetYear();
-	int m = tmp.GetMonth();
-	int d = tmp.GetDay();
-	int h = tmp.GetHour();
-	int mi = tmp.GetMinute();
-	int se = tmp.GetSecond();
-	std::string cur_time = std::to_string(y) + "/" + std::to_string(m) +"/"+ std::to_string(d) + " " + std::to_string(h) + ":" + std::to_string(mi) + ":" + std::to_string(se);
-	return cur_time;
-}
-
 void DatabaseManager::store_player_activityInfo(UserBase*pUser, Game*rGame, double&time,std::string&start_time)
 {
 	std::ofstream info_stream;
@@ -734,7 +701,6 @@ void DatabaseManager::store_player_activityInfo(UserBase*pUser, Game*rGame, doub
 //if i=1,print the player activity info,if i=2,print the most populargame
 void DatabaseManager::check_player_activityInfo(const int i)
 {
-	//从表中读取游戏数据
 	std::ifstream info_stream("activityInfo.csv", std::ios::in);
 	if (!info_stream.fail())
 	{
@@ -800,4 +766,18 @@ double DatabaseManager::average_price()
 	{
 		return 0;
 	}
+}
+
+std::string DatabaseManager::get_time()
+{
+	CTime tmp;
+	tmp = CTime::GetCurrentTime();
+	int y = tmp.GetYear();
+	int m = tmp.GetMonth();
+	int d = tmp.GetDay();
+	int h = tmp.GetHour();
+	int mi = tmp.GetMinute();
+	int se = tmp.GetSecond();
+	std::string cur_time = std::to_string(y) + "/" + std::to_string(m) + "/" + std::to_string(d) + " " + std::to_string(h) + ":" + std::to_string(mi) + ":" + std::to_string(se);
+	return cur_time;
 }

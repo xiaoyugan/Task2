@@ -136,11 +136,10 @@ int MenuSystem::run_admin_user_menu()
 		case'2': list_all_users(); break;
 		case'3':
 		{
-			//std::cout << "TODO\n"; break;//调用添加游戏代码
+			//Add Game
 			int g_id;
 			std::cout << "Please Input New Game ID\n";
 			std::cin >> g_id;
-			//判断ID是否已存在
 			if (!DatabaseManager::instance().find_game(g_id))
 			{
 				std::string g_title;
@@ -171,7 +170,7 @@ int MenuSystem::run_admin_user_menu()
 		}
 		case '4': 
 		{
-			//std::cout << "TODO\n"; break;//调用userdatabase里面的add_users
+			//Add User
 			std::string u_name;
 			std::string u_password;
 			std::string u_mail;
@@ -182,7 +181,6 @@ int MenuSystem::run_admin_user_menu()
 			std::cin >> op;
 			std::cout << "Please Input New User Name\n";
 			std::cin >> u_name;
-			//判断用户是否存在
 			if (!DatabaseManager::instance().find_user(u_name))
 			{
 
@@ -194,13 +192,15 @@ int MenuSystem::run_admin_user_menu()
 				{
 				case'1':
 				{
+					//Add AdminUser
 					DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail));
 					std::cout << "Added successfully\n";
 					break;
 				}
 				case'2':
 				{
-					std::list<Game::GameId>gamelist;//默认初始化为空
+					//Add PlayerUser
+					std::list<Game::GameId>gamelist;
 					gamelist.push_back(0);
 					int age;
 					std::cout << "Please Input New User Age\n";
@@ -211,8 +211,8 @@ int MenuSystem::run_admin_user_menu()
 				}
 				case'3':
 				{
-					//gamestudio
-					std::list<Game::GameId>gamelist;//默认初始化为空
+					//Add GameStudio
+					std::list<Game::GameId>gamelist;
 					gamelist.push_back(0);
 					DatabaseManager::instance().add_and_store_gamestudio(new GameStudio(u_name, u_password, u_mail, gamelist));
 					std::cout << "Added successfully\n";
@@ -245,6 +245,7 @@ int MenuSystem::run_admin_user_menu()
 			{
 			case'1':
 			{
+				//Modify The Title
 				std::string modify_name;
 				std::cout << "Please Input The New Title\n";
 				std::cin >> modify_name;
@@ -255,6 +256,7 @@ int MenuSystem::run_admin_user_menu()
 			}
 			case'2':
 			{
+				//Modify The Description
 				std::string modify_desc;
 				std::cout << "Please Input The New Description\n";
 				std::cin >> modify_desc;
@@ -265,6 +267,7 @@ int MenuSystem::run_admin_user_menu()
 			}
 			case'3':
 			{
+				//Modify The Price
 				double modify_price;
 				std::cout << "Please Input The New Price\n";
 				std::cin >> modify_price;
@@ -292,22 +295,25 @@ int MenuSystem::run_admin_user_menu()
 		}
 		case'7':
 		{
-			//CHECK THE GAME PURCHASE HISTORY
+			//The Game Purchase History
 			DatabaseManager::instance().check_purchase_history();
 			break;
 		}
 		case'8':
 		{
+			// Player Activity Information
 			DatabaseManager::instance().check_player_activityInfo(1);
 			break;
 		}
 		case'9':
 		{
+			//The Most Popular Game\n"; 
 			DatabaseManager::instance().check_player_activityInfo(2);
 			break;
 		}
 		case'a':
 		{
+			//Average Game Price
 			std::cout<<"The Average Game Price: "<<DatabaseManager::instance().average_price()<<std::endl;
 			break;
 		}
@@ -349,19 +355,19 @@ int MenuSystem::run_player_user_menu()
 		case '1': list_all_games(); break;
 		case '2': 
 		{
-			//"(2) List My Games\n";
+			//List My Games
 			list_my_games(pPlayerUser);
 			break;
 		}
 		case '3': 
 		{
-			//"(3) Buy Game\n";
+			//Buy Game
 			list_all_games();
 			int id;
 			std::cout << "Please input the id that the game you want to buy\n";
 			std::cin >> id;
 			bool isin = false;
-			//判断是否已经拥有
+			//if player own the game
 			for (int it : pPlayerUser->get_game_list())
 			{
 				if (id == it)
@@ -371,23 +377,20 @@ int MenuSystem::run_player_user_menu()
 					break;
 				}
 			}
-			//如果没有拥有
+			//if not own
 			if (!isin)
 			{
 				auto rGame = DatabaseManager::instance().find_game(id);
 				if (rGame)
 				{
-					//判断年龄
 					if (rGame->get_ageRestriction() <= pPlayerUser->get_myage())
 					{
-						//正常购买
 						double game_price = rGame->get_game_Price();
 						double available_funds = pPlayerUser->get_available_funds();
+						//if have enough monet
 						if (game_price <= available_funds)
 						{
-							//如果钱够，就买下
 							pPlayerUser->set_accountFunds(available_funds - game_price);
-							//添进游戏库(判断第一个值是不是0)
 							if (pPlayerUser->get_game_list().front() != 0)
 							{
 								pPlayerUser->add_ownedGame(id);
@@ -432,6 +435,7 @@ int MenuSystem::run_player_user_menu()
 			{
 			case'1':
 			{
+				//search by title
 				std::cout << "Please input the title you want to search\n";
 				std::string s_title;
 				std::cin.ignore();
@@ -441,6 +445,7 @@ int MenuSystem::run_player_user_menu()
 			}
 			case'2':
 			{
+				//search by description
 				std::cout << "Please input the description you want to search\n";
 				std::string s_description;
 				std::cin.ignore();
@@ -450,6 +455,7 @@ int MenuSystem::run_player_user_menu()
 			}
 			case'3':
 			{
+				//search by price
 				double pri_upper, pri_lower;
 				std::cout << "Please input the price cap\n";
 				std::cin >> pri_upper;
@@ -460,6 +466,7 @@ int MenuSystem::run_player_user_menu()
 			}
 			case'4':
 			{
+				//search by age restriction
 				int age;
 				std::cout << "Please input the age restriction\n";
 				std::cin >> age;
@@ -504,7 +511,7 @@ int MenuSystem::run_player_user_menu()
 		}
 		case '7': 
 		{
-			//(4) Add Funds\n"
+			//Add Funds
 			double topup;
 			std::cout << "Please input the amount you want to top up\n";
 			std::cin >> topup;
@@ -515,11 +522,13 @@ int MenuSystem::run_player_user_menu()
 		}
 		case'8':
 		{
+			//Check out the most popular games
 			DatabaseManager::instance().check_player_activityInfo(2);
 			break;
 		}
 		case'9':
 		{
+			//Average Game Price
 			std::cout << "The Average Game Price: " << DatabaseManager::instance().average_price() << std::endl;
 			break;
 		}
@@ -573,7 +582,7 @@ int MenuSystem::run_gamestudio_menu()
 		}
 		case'3':
 		{
-			//play game
+			//play my game
 			if (pGS->accessible_gamelist().front() == 0)
 			{
 				std::cout << "You do not have any games\n\n";
@@ -591,10 +600,10 @@ int MenuSystem::run_gamestudio_menu()
 		}
 		case'4':
 		{
+			//Upload My Game+add this game to my gamelist
 			int g_id;
 			std::cout << "Please Input Your Game ID\n";
 			std::cin >> g_id;
-			//判断ID是否已存在
 			if (!DatabaseManager::instance().find_game(g_id))
 			{
 				std::string g_title;
@@ -640,7 +649,6 @@ int MenuSystem::run_gamestudio_menu()
 				std::cin >> id;
 
 				bool own = false;
-				//判断是否拥有
 				for (int it : pGS->accessible_gamelist())
 				{
 					if (id == it)

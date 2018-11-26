@@ -41,6 +41,6 @@ private:
 	int run_gamestudio_menu();
 private:
 	UserBase* m_pUser = nullptr;  // the currently logged in user.
-	GuestUser*m_gUser = nullptr;
+	GuestUser*m_gUser = nullptr;  // the currently guest
 };
 

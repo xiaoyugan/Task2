@@ -47,7 +47,7 @@ private:
 	GamePrice m_gameprice; 
 	std::string m_title; // The game title
 	std::string m_description; // Some information about the game.
-	int m_version;
+	int m_version; 
 	int m_ageRestirction;
 };
 
