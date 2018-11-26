@@ -11,11 +11,13 @@ public:
 	using GameId = int;
 	using GamePrice = double;
 
-	Game(const GameId& gameId, const std::string& title, const GamePrice&price, const std::string& desc)
+	Game(const GameId& gameId, const std::string& title, const GamePrice&price, const std::string& desc, const int&ver, const int&age)
 		: m_gameId(gameId)
 		, m_title(title)
-		,m_gameprice(price)
+		, m_gameprice(price)
 		, m_description(desc)
+		, m_version(ver)
+		, m_ageRestirction(age)
 	{}
 
 	virtual ~Game() {}
@@ -26,6 +28,10 @@ public:
 
 	const std::string get_game_desc() const { return m_description; }
 
+	const int get_version()const { return m_version; }
+
+	const int get_ageRestriction()const { return m_ageRestirction; }
+
 	const Game::GamePrice get_game_Price() const { return m_gameprice; }
 
 	void set_title(const std::string& val) { m_title = val; }
@@ -34,11 +40,15 @@ public:
 
 	void set_price(const Game::GamePrice&val) { m_gameprice = val; }
 
+	void set_version(const int&val) { m_version = val; }
+
 private:
 	const GameId m_gameId;	// Numerical identifier for a game  (unique key).
 	GamePrice m_gameprice; 
 	std::string m_title; // The game title
 	std::string m_description; // Some information about the game.
+	int m_version;
+	int m_ageRestirction;
 };
 
 

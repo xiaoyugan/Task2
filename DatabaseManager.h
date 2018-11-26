@@ -29,6 +29,8 @@ public:
 
 	void store_playeruser_data(UserBase*pUser);
 
+	void store_gamestudio_data(UserBase*pUser);
+
 	void store_guest_data(GuestUser*gUser);
 
 	void store_owned_games(UserBase*pUser);
@@ -47,6 +49,8 @@ public:
 	void add_and_store_adminuser(UserBase* pUser);
 
 	void add_and_store_playeruser(UserBase*pUser);
+
+	void add_and_store_gamestudio(UserBase*pUser);
 
 	void add_and_stroe_guest(GuestUser*gUser);
 
@@ -82,7 +86,7 @@ public:
 		for (auto it : m_games) { func(it.second); }
 	}
 
-	void search_game(const int i,const std::string s=" ", const double pri_upper = 0, const double pri_lower = 0);
+	void search_game(const int i,const std::string s=" ", const double pri_upper = 0, const double pri_lower = 0,const int age=0);
 
 	void store_purchase_history(PlayerUser*pUser,Game*rGame);
 

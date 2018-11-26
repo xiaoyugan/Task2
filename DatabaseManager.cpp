@@ -40,9 +40,11 @@ void DatabaseManager::load_data()
 		std::string g_title;
 		std::string g_price;
 		std::string g_desc;
-		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') &&std::getline(games_stream,g_price,',') &&std::getline(games_stream, g_desc, '\n'))
+		std::string g_version;
+		std::string g_age;
+		while (std::getline(games_stream, g_id, ',') && std::getline(games_stream, g_title, ',') &&std::getline(games_stream,g_price,',') &&std::getline(games_stream, g_desc, ',')&&std::getline(games_stream,g_version,',')&&std::getline(games_stream,g_age,'\n'))
 		{
-			add_game(Game(std::stoi(g_id), g_title,std::stod(g_price), g_desc));
+			add_game(Game(std::stoi(g_id), g_title,std::stod(g_price), g_desc,std::stoi(g_version),std::stoi(g_age)));
 		}
 		games_stream.close();
 	}
@@ -83,7 +85,8 @@ void DatabaseManager::load_data()
 		std::string u_mail;
 		std::string u_account_funds;
 		std::string u_owned_game;
-		while (std::getline(player_stream, u_type, ',') && std::getline(player_stream, u_name, ',') && std::getline(player_stream, u_password, ',') && std::getline(player_stream, u_mail, ',')&&std::getline(player_stream,u_account_funds,',')&&std::getline(player_stream,u_owned_game,'\n'))
+		std::string u_age;
+		while (std::getline(player_stream, u_type, ',') && std::getline(player_stream, u_name, ',') && std::getline(player_stream, u_password, ',') && std::getline(player_stream, u_mail, ',')&&std::getline(player_stream,u_age,',')&&std::getline(player_stream,u_account_funds,',')&&std::getline(player_stream,u_owned_game,'\n'))
 		{
 			if (std::stoi(u_type) == 1)
 			{
@@ -95,7 +98,37 @@ void DatabaseManager::load_data()
 					mygame.push_back(game);
 				}
 				//split<std::list<int>>(u_owned_game, mygame, '//');
-				add_user(new PlayerUser(u_name, u_password, u_mail, std::stod(u_account_funds),mygame));
+				add_user(new PlayerUser(u_name, u_password, u_mail, std::stod(u_account_funds),mygame,std::stoi(u_age)));
+			}
+		}
+		player_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+
+	//从表中读取工作室数据
+	std::ifstream gamestudio_stream("gamestudiolist.csv", std::ios::in | std::ios::_Nocreate);
+	if (!gamestudio_stream.fail())
+	{
+		std::string u_type;
+		std::string u_name;
+		std::string u_password;
+		std::string u_mail;
+		std::string u_owned_game;
+		while (std::getline(gamestudio_stream, u_type, ',') && std::getline(gamestudio_stream, u_name, ',') && std::getline(gamestudio_stream, u_password, ',') && std::getline(gamestudio_stream, u_mail, ',') && std::getline(gamestudio_stream, u_owned_game, '\n'))
+		{
+			if (std::stoi(u_type) == 4)
+			{
+				std::list<int>mygame;
+				std::stringstream iss(u_owned_game);
+				int game;
+				while (iss >> game)
+				{
+					mygame.push_back(game);
+				}
+				add_user(new GameStudio(u_name, u_password, u_mail, mygame));
 			}
 		}
 		player_stream.close();
@@ -168,7 +201,37 @@ void DatabaseManager::store_playeruser_data(UserBase*puser)
 		{
 			str_gamelist = "0";
 		}
-		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() <<","<<pUser->get_available_funds()<<","<< str_gamelist << std::endl;
+		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() <<","<<pUser->get_myage()<<","<<pUser->get_available_funds()<<","<< str_gamelist << std::endl;
+		user_stream.close();
+	}
+	else
+	{
+		std::cout << "\nAn error has occurred when opening the file.\n";
+	}
+}
+
+void DatabaseManager::store_gamestudio_data(UserBase*puser)
+{
+	GameStudio* pUser = static_cast<GameStudio*>(puser);
+	std::ofstream user_stream;
+	//打开要输出的文件
+	user_stream.open("gamestudiolist.csv", std::ios::out | std::ios::app);
+	if (!user_stream.fail())
+	{
+		std::string str_gamelist;
+		std::list<Game::GameId>my_game = pUser->accessible_gamelist();
+		if (my_game.front() != 0)
+		{
+			for (int it : my_game)
+			{
+				str_gamelist = str_gamelist + std::to_string(it) + " ";
+			}
+		}
+		else
+		{
+			str_gamelist = "0";
+		}
+		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() << "," << str_gamelist << std::endl;
 		user_stream.close();
 	}
 	else
@@ -200,7 +263,7 @@ void DatabaseManager::store_game_data(const Game &rGame)
 	game_stream.open("gamelist.csv", std::ios::out | std::ios::app);
 	if (!game_stream.fail())
 	{
-		game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," <<rGame.get_game_Price()<<","<< rGame.get_game_desc() << std::endl;
+		game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," <<rGame.get_game_Price()<<","<< rGame.get_game_desc() <<","<<rGame.get_version()<<","<<rGame.get_ageRestriction()<< std::endl;
 		game_stream.close();
 	}
 	else
@@ -274,6 +337,12 @@ void DatabaseManager::add_and_store_playeruser(UserBase*pUser)
 	store_playeruser_data(pUser);
 }
 
+void DatabaseManager::add_and_store_gamestudio(UserBase*pUser)
+{
+	add_user(pUser);
+	store_gamestudio_data(pUser);
+}
+
 void DatabaseManager::add_and_store_game(Game&rGame)
 {
 	add_game(rGame);
@@ -336,11 +405,12 @@ Game* DatabaseManager::find_game(const Game::GameId gameid)
 	}
 }
 
-void DatabaseManager::search_game(const int i, const std::string s, const double pri_upper, const double pri_lower )
+void DatabaseManager::search_game(const int i, const std::string s, const double pri_upper, const double pri_lower,const int age )
 {
 	bool is1 = false;
 	bool is2 = false;
 	bool is3 = false;
+	bool is4 = false;
 	for (auto it : m_games)
 	{
 		auto rGame = it.second;
@@ -381,10 +451,21 @@ void DatabaseManager::search_game(const int i, const std::string s, const double
 			}
 			break;
 		}
+		case 4:
+		{
+			//search by age restriction
+			int ageRestri = rGame.get_ageRestriction();
+			if (age>=ageRestri)
+			{
+				std::cout << "id: " << rGame.get_game_id() << ", title: " + rGame.get_title() << ", price: " << rGame.get_game_Price() << ", description: " + rGame.get_game_desc() <<", age restriction: "<< ageRestri<< "\n";
+				is4 = true;
+			}
+			break;
+		}
 		default:std::cout << "Parameter error\n"; break;
 		}
 	}
-	if (!is1&&!is2&&!is3)
+	if (!is1&&!is2&&!is3&&!is4)
 	{
 		std::cout << "Search for games that don't meet the criteria\n\n";
 	}

@@ -15,6 +15,7 @@ enum class UserTypeId
 	, kPlayerUser
 	, kAdminUser
 	, kGuestUser
+	, kGameStudio
 };
 
 //--
@@ -60,10 +61,11 @@ public:
 
 	// inherit the constructor.
 	//using UserBase::UserBase;
-	PlayerUser(const Username& username, const std::string& password, const std::string& email, const double&accountFunds,const GameList& mygamelist)
+	PlayerUser(const Username& username, const std::string& password, const std::string& email, const double&accountFunds, const GameList& mygamelist, const int&age)
 		:UserBase(username, password, email)
 		, m_accountFunds(accountFunds)
-		,m_ownedGames(mygamelist)
+		, m_ownedGames(mygamelist)
+		, m_age(age)
 	{}
 
 	// define the specific user type.
@@ -72,6 +74,8 @@ public:
 	const PlayerUser::GameList& get_game_list() const { return m_ownedGames; }
 
 	const double get_available_funds() const  { return m_accountFunds; }
+
+	const int get_myage()const { return m_age; }
 
 	void set_accountFunds(const double& val) { m_accountFunds = val; }
 
@@ -89,6 +93,40 @@ public:
 private:
 	GameList m_ownedGames; // List of owned games.
 	double m_accountFunds; // The players available funds.
+	int m_age;
+};
+
+
+class GameStudio : public UserBase
+{
+public:
+	using GameList = std::list<Game::GameId>;
+
+	// inherit the constructor.
+	//using UserBase::UserBase;
+	GameStudio(const Username& username, const std::string& password, const std::string& email, const GameList& mygamelist)
+		:UserBase(username, password, email)
+		, m_ownedGames(mygamelist)
+	{}
+
+	// define the specific user type.
+	virtual const UserTypeId  get_user_type() const override { return UserTypeId::kGameStudio; }
+
+	const GameStudio::GameList& accessible_gamelist() const { return m_ownedGames; }
+
+	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
+
+	void pop_ownedGame(const Game::GameId& val)
+	{
+		if (m_ownedGames.size() == 1)
+		{
+			m_ownedGames.push_back(0);
+		}
+		m_ownedGames.remove(val);
+	}
+
+private:
+	GameList m_ownedGames; // List of owned games.
 };
 
 //--

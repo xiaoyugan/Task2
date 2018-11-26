@@ -37,6 +37,8 @@ private:
 	int run_unknown_user_menu();
 
 	int run_guest_user_menu();
+
+	int run_gamestudio_menu();
 private:
 	UserBase* m_pUser = nullptr;  // the currently logged in user.
 	GuestUser*m_gUser = nullptr;
