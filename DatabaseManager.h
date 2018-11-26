@@ -26,7 +26,6 @@ public:
 	void store_playeruser_data(UserBase*pUser);
 	void store_gamestudio_data(UserBase*pUser);
 	void store_guest_data(GuestUser*gUser);
-	void store_owned_games(UserBase*pUser);
 	void store_game_data(const Game&rGame);
 
 	// Pass the newly modified data into the table.Prevent when the program from ending abnormally,the data loss.
