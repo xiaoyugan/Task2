@@ -71,6 +71,10 @@ public:
 	// Adds a game to the db.
 	void add_game(Game&rGame);
 
+	void give_away(UserBase*pUser, std::string name, int id);
+
+	void play_game(UserBase*pUser, int id);
+
 	// Remove games
 	void remove_game(int id);
 
@@ -92,9 +96,10 @@ public:
 
 	void check_purchase_history();
 
-	void store_player_activityInfo(PlayerUser*pUser, Game*rGame,double&time,std::string&start_time);
+	void store_player_activityInfo(UserBase*pUser, Game*rGame,double&time,std::string&start_time);
 
-	void check_player_activityInfo();
+	//if i=1,print the player activity info,if i=2,print the most populargame
+	void check_player_activityInfo(const int i);
 
 	std::string get_time();
 

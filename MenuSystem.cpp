@@ -19,15 +19,26 @@ void MenuSystem::list_all_games() const
 	DatabaseManager::instance().visit_games(gameVisitorLambda);
 }
 
-void MenuSystem::list_my_games(PlayerUser*pUser)const
+void MenuSystem::list_my_games(UserBase*puser)const
 {
-	auto mygames = pUser->get_game_list();
+	std::list<Game::GameId> mygames;
+	if (puser->get_user_type() == UserTypeId::kPlayerUser)
+	{
+		PlayerUser* pUser = static_cast<PlayerUser*>(puser);
+		mygames = pUser->get_game_list();
+	}
+	else if (puser->get_user_type() == UserTypeId::kGameStudio)
+	{
+		GameStudio*pUser = static_cast<GameStudio*>(puser);
+		mygames = pUser->accessible_gamelist();
+	}
+	
 	if (mygames.front() != 0)
 	{
 		for (auto it : mygames)
 		{
 			auto rGame = DatabaseManager::instance().find_game(it);
-			std::cout << "id: " << rGame->get_game_id() << ", title: " + rGame->get_title() << ", price: " << rGame->get_game_Price() << ", description: " + rGame->get_game_desc() << "\n";
+			std::cout << "id: " << rGame->get_game_id() << ", title: " + rGame->get_title() << ", price: " << rGame->get_game_Price() << ", description: " + rGame->get_game_desc() <<", game version: " <<rGame->get_version()<<"\n";
 		}
 	}
 	else
@@ -112,6 +123,7 @@ int MenuSystem::run_admin_user_menu()
 		std::cout << "(6) Remove Game\n";//todo
 		std::cout << "(7) Check The Game Purchase History\n";
 		std::cout << "(8) Check Player Activity Information\n";
+		std::cout << "(9) Check out the most popular games\n"; 
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -285,7 +297,12 @@ int MenuSystem::run_admin_user_menu()
 		}
 		case'8':
 		{
-			DatabaseManager::instance().check_player_activityInfo();
+			DatabaseManager::instance().check_player_activityInfo(1);
+			break;
+		}
+		case'9':
+		{
+			DatabaseManager::instance().check_player_activityInfo(2);
 			break;
 		}
 		case 'q': result = -1; break;
@@ -314,6 +331,7 @@ int MenuSystem::run_player_user_menu()
 		std::cout << "(5) Give Away\n";
 		std::cout << "(6) Play Game\n";
 		std::cout << "(7) Add Funds\n";
+		std::cout << "(8) Check out the most popular games\n";
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -369,8 +387,8 @@ int MenuSystem::run_player_user_menu()
 							}
 							else
 							{
-								pPlayerUser->pop_ownedGame(0);
 								pPlayerUser->add_ownedGame(id);
+								pPlayerUser->pop_ownedGame(0);
 							}
 							DatabaseManager::instance().update_player_data();
 							DatabaseManager::instance().store_purchase_history(pPlayerUser, rGame);
@@ -451,73 +469,12 @@ int MenuSystem::run_player_user_menu()
 			std::cout << "Your games:\n";
 			list_my_games(pPlayerUser);
 			std::string u_name;
+			int id;
 			std::cout << "Input the name you want to give it to\n";
 			std::cin >> u_name;
-			auto user = DatabaseManager::instance().find_user(u_name);
-			//判断用户是否存在，而且为player
-			if (user)
-			{
-				if (user->get_user_type() == UserTypeId::kPlayerUser)
-				{
-					//送送送					
-					int id;
-					std::cout << "Please select one of your games you want to give away and Input the id\n";
-					std::cin >> id;
-					bool own = false;
-					//判断是否拥有
-					for (int it : pPlayerUser->get_game_list())
-					{
-						if (id == it)
-						{
-							own = true;
-							break;
-						}
-					}
-					if (own)
-					{
-						//判断对方是否有这个游戏
-						PlayerUser* pUser = static_cast<PlayerUser*>(user);
-						bool friendown = false;
-						for (int it : pUser->get_game_list())
-						{
-							if (id == it)
-							{
-								friendown = true;
-								std::cout << "Your friend already owns the game\n\n";
-								break;
-							}
-						}
-						//如果对方没有，就判断年龄
-						if (!friendown)
-						{
-							auto rGame = DatabaseManager::instance().find_game(id);
-							if (pUser->get_myage() >= rGame->get_ageRestriction())
-							{
-								pPlayerUser->pop_ownedGame(id);
-								pUser->add_ownedGame(id);
-								DatabaseManager::instance().update_player_data();
-								std::cout << "Give away successfully\n\n";
-							}
-							else
-							{
-								std::cout << "Your friend do not suitable this game(age)\n\n";
-							}						
-						}						
-					}
-					else
-					{
-						std::cout << "You do not have this game\n\n";
-					}
-				}
-				else if (user->get_user_type() == UserTypeId::kAdminUser)
-				{
-					std::cout << "You can't give the game to the Admin\n\n";
-				}
-			}
-			else
-			{
-				std::cout << "The user does not exist\n\n";
-			}
+			std::cout << "Please select one of your games you want to give away and Input the id\n";
+			std::cin >> id;
+			DatabaseManager::instance().give_away(pPlayerUser, u_name, id);
 			break;
 		}
 		case'6':
@@ -534,44 +491,7 @@ int MenuSystem::run_player_user_menu()
 				list_my_games(pPlayerUser);
 				std::cout << "\nWhich game do you want to play?Input the game id\n";
 				std::cin >> id;
-				bool own = false;
-				//判断是否拥有
-				for (int it : pPlayerUser->get_game_list())
-				{
-					if (id == it)
-					{
-						own = true;
-						break;
-					}
-				}
-				if (own)
-				{
-					//play
-					auto rGame = DatabaseManager::instance().find_game(id);
-					std::string start_time = DatabaseManager::instance().get_time();
-					//start
-					time_t begin, end;
-					double dur;
-					begin = clock();
-
-					std::cout << "You are playing " << rGame->get_title() << "\n\n";
-					char quit;
-					do
-					{
-						std::cout << "Quit the game(Y/N)\n";
-						std::cin >> quit;
-						std::cout << "You are playing " << rGame->get_title() << "\n\n";						
-					} while (quit == 'N' || quit == 'n');
-					std::cout << "You have successfully exited\n\n";
-					//end
-					end = clock();
-					dur = double(end - begin) / CLOCKS_PER_SEC;
-					DatabaseManager::instance().store_player_activityInfo(pPlayerUser,rGame,dur,start_time);
-				}
-				else
-				{
-					std::cout << "You do not have this game\n\n";
-				}
+				DatabaseManager::instance().play_game(pPlayerUser, id);
 			}			
 			break;
 		}
@@ -584,6 +504,11 @@ int MenuSystem::run_player_user_menu()
 			pPlayerUser->set_accountFunds(topup+pPlayerUser->get_available_funds());
 			DatabaseManager::instance().update_player_data();
 			std::cout << "Top up successfully\n";
+			break;
+		}
+		case'8':
+		{
+			DatabaseManager::instance().check_player_activityInfo(2);
 			break;
 		}
 		case 'q': result = -1; break;
@@ -607,7 +532,7 @@ int MenuSystem::run_gamestudio_menu()
 		std::cout << "(1) List My Games\n";
 		std::cout << "(2) Give Away\n";
 		std::cout << "(3) Play My Game\n";
-		std::cout << "(4)Upload My Game\n";
+		std::cout << "(4) Upload My Game\n";
 		std::cout << "(5) Update Version\n";
 		std::cout << "(q) Logout\n";
 
@@ -617,6 +542,119 @@ int MenuSystem::run_gamestudio_menu()
 		{
 		case'1':
 		{
+			list_my_games(pGS);
+			break;
+		}
+		case'2':
+		{
+			//give away
+			std::cout << "Your games:\n";
+			list_my_games(pGS);
+			std::string u_name;
+			int id;
+			std::cout << "Input the name you want to give it to\n";
+			std::cin >> u_name;
+			std::cout << "Please select one of your games you want to give away and Input the id\n";
+			std::cin >> id;
+			DatabaseManager::instance().give_away(pGS, u_name, id);
+			break;
+		}
+		case'3':
+		{
+			//play game
+			if (pGS->accessible_gamelist().front() == 0)
+			{
+				std::cout << "You do not have any games\n\n";
+			}
+			else
+			{
+				int id;
+				std::cout << "Your games:\n";
+				list_my_games(pGS);
+				std::cout << "\nWhich game do you want to play?Input the game id\n";
+				std::cin >> id;
+				DatabaseManager::instance().play_game(pGS, id);
+			}
+			break;
+		}
+		case'4':
+		{
+			int g_id;
+			std::cout << "Please Input Your Game ID\n";
+			std::cin >> g_id;
+			//判断ID是否已存在
+			if (!DatabaseManager::instance().find_game(g_id))
+			{
+				std::string g_title;
+				double g_price;
+				std::string g_desc;
+				int versionNumber;
+				int ageRestriction;
+				std::cout << "Please Input Your Game Title\n";
+				std::cin.ignore();
+				std::getline(std::cin, g_title, '\n');
+				std::cout << "Please Input Your Game Price\n";
+				std::cin >> g_price;
+				std::cout << "Please Input Your Game Description\n";
+				std::cin.ignore();
+				std::getline(std::cin, g_desc, '\n');
+				std::cout << "Please Input Your Game Version Numbers\n";
+				std::cin >> versionNumber;
+				std::cout << "Please Input Your Game Age Restriction\n";
+				std::cin >> ageRestriction;
+				DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_price, g_desc, versionNumber, ageRestriction));
+				pGS->add_ownedGame(g_id);
+				std::cout << "Added successfully\n";
+			}
+			else
+			{
+				std::cout << "The game already exists\n\n";
+			}
+			break;
+		}
+		case'5':
+		{
+			//upload version
+			if (pGS->accessible_gamelist().front() == 0)
+			{
+				std::cout << "You do not have any games\n\n";
+			}
+			else
+			{
+				int id;
+				std::cout << "Your games:\n";
+				list_my_games(pGS);
+				std::cout << "\nInput the new version`s game id\n";
+				std::cin >> id;
+
+				bool own = false;
+				//判断是否拥有
+				for (int it : pGS->accessible_gamelist())
+				{
+					if (id == it)
+					{
+						own = true;
+						break;
+					}
+				}
+				if (own)
+				{
+					auto rGame = DatabaseManager::instance().find_game(id);
+					std::cout << "The old version number: " << rGame->get_version() << std::endl;
+					int version;
+					std::cout << "What is the new version number?Please input\n";
+					std::cin >> version;
+					rGame->set_version(version);
+					DatabaseManager::instance().update_games_data();
+					std::cout << "Here simulates uploading a new version of the game\n";
+					std::cout<< "The new version number: " << rGame->get_version() << std::endl;
+					std::cout << "Update Version Successfully\n";
+				}
+				else 
+				{
+					std::cout << "You cannot update this game`s version\n\n";
+				}				
+			}
 			break;
 		}
 		case 'q': result = -1; break;

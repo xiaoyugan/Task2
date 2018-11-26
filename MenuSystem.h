@@ -22,7 +22,7 @@ public:
 private:
 	void list_all_games() const;
 
-	void list_my_games(PlayerUser*pUser)const;
+	void list_my_games(UserBase*pUser)const;
 
 	void list_all_users() const;
 

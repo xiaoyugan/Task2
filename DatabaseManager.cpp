@@ -392,6 +392,195 @@ void DatabaseManager::remove_game(int id)
 	m_games.erase(id);
 }
 
+void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
+{
+	auto user = DatabaseManager::instance().find_user(name);
+
+	if (puser->get_user_type() == UserTypeId::kPlayerUser)
+	{
+		PlayerUser* pPlayerUser = static_cast<PlayerUser*>(puser);
+		//判断用户是否存在，而且为player
+		if (user)
+		{
+			if (user->get_user_type() == UserTypeId::kPlayerUser)
+			{
+				//送送送					
+				bool own = false;
+				//判断是否拥有
+				for (int it : pPlayerUser->get_game_list())
+				{
+					if (id == it)
+					{
+						own = true;
+						break;
+					}
+				}
+				if (own)
+				{
+					//判断对方是否有这个游戏
+					PlayerUser* pUser = static_cast<PlayerUser*>(user);
+					bool friendown = false;
+					for (int it : pUser->get_game_list())
+					{
+						if (id == it)
+						{
+							friendown = true;
+							std::cout << "Your friend already owns the game\n\n";
+							break;
+						}
+					}
+					//如果对方没有，就判断年龄
+					if (!friendown)
+					{
+						auto rGame = DatabaseManager::instance().find_game(id);
+						if (pUser->get_myage() >= rGame->get_ageRestriction())
+						{
+							pPlayerUser->pop_ownedGame(id);
+							pUser->add_ownedGame(id);
+							DatabaseManager::instance().update_player_data();
+							std::cout << "Give away successfully\n\n";
+						}
+						else
+						{
+							std::cout << "Your friend do not suitable this game(age)\n\n";
+						}
+					}
+				}
+				else
+				{
+					std::cout << "You do not have this game\n\n";
+				}
+			}
+			else 
+			{
+				std::cout << "You can't give the game to the user\n\n";
+			}
+		}
+		else
+		{
+			std::cout << "The user does not exist\n\n";
+		}
+	}
+	else if (puser->get_user_type() == UserTypeId::kGameStudio)
+	{
+		GameStudio*pPlayerUser = static_cast<GameStudio*>(puser);
+		//判断用户是否存在，而且为player
+		if (user)
+		{
+			if (user->get_user_type() == UserTypeId::kPlayerUser)
+			{
+				//送送送					
+				bool own = false;
+				//判断是否拥有
+				for (int it : pPlayerUser->accessible_gamelist())
+				{
+					if (id == it)
+					{
+						own = true;
+						break;
+					}
+				}
+				if (own)
+				{
+					//判断对方是否有这个游戏
+					PlayerUser* pUser = static_cast<PlayerUser*>(user);
+					bool friendown = false;
+					for (int it : pUser->get_game_list())
+					{
+						if (id == it)
+						{
+							friendown = true;
+							std::cout << "Your friend already owns the game\n\n";
+							break;
+						}
+					}
+					//如果对方没有，就判断年龄
+					if (!friendown)
+					{
+						auto rGame = DatabaseManager::instance().find_game(id);
+						if (pUser->get_myage() >= rGame->get_ageRestriction())
+						{
+							//pPlayerUser->pop_ownedGame(id);
+							pUser->add_ownedGame(id);
+							DatabaseManager::instance().update_player_data();
+							std::cout << "Give away successfully\n\n";
+						}
+						else
+						{
+							std::cout << "Your friend do not suitable this game(age)\n\n";
+						}
+					}
+				}
+				else
+				{
+					std::cout << "You do not have this game\n\n";
+				}
+			}
+			else 
+			{
+				std::cout << "You can't give the game to the user\n\n";
+			}
+		}
+		else
+		{
+			std::cout << "The user does not exist\n\n";
+		}
+	}	
+}
+
+void DatabaseManager::play_game(UserBase*puser, int id)
+{
+	std::list<Game::GameId> mygames;
+	if (puser->get_user_type() == UserTypeId::kPlayerUser)
+	{
+		PlayerUser* pUser = static_cast<PlayerUser*>(puser);
+		mygames = pUser->get_game_list();
+	}
+	else if (puser->get_user_type() == UserTypeId::kGameStudio)
+	{
+		GameStudio*pUser = static_cast<GameStudio*>(puser);
+		mygames = pUser->accessible_gamelist();
+	}
+	bool own = false;
+	//判断是否拥有
+	for (int it : mygames)
+	{
+		if (id == it)
+		{
+			own = true;
+			break;
+		}
+	}
+	if (own)
+	{
+		//play
+		auto rGame = DatabaseManager::instance().find_game(id);
+		std::string start_time = DatabaseManager::instance().get_time();
+		//start
+		time_t begin, end;
+		double dur;
+		begin = clock();
+
+		std::cout << "You are playing " << rGame->get_title() << "\n\n";
+		char quit;
+		do
+		{
+			std::cout << "Quit the game(Y/N)\n";
+			std::cin >> quit;
+			std::cout << "You are playing " << rGame->get_title() << "\n\n";
+		} while (quit == 'N' || quit == 'n');
+		std::cout << "You have successfully exited\n\n";
+		//end
+		end = clock();
+		dur = double(end - begin) / CLOCKS_PER_SEC;
+		DatabaseManager::instance().store_player_activityInfo(puser, rGame, dur, start_time);
+	}
+	else
+	{
+		std::cout << "You do not have this game\n\n";
+	}
+}
+
 Game* DatabaseManager::find_game(const Game::GameId gameid)
 {
 	auto it = m_games.find(gameid);
@@ -527,14 +716,14 @@ std::string DatabaseManager::get_time()
 	return cur_time;
 }
 
-void DatabaseManager::store_player_activityInfo(PlayerUser*pUser, Game*rGame, double&time,std::string&start_time)
+void DatabaseManager::store_player_activityInfo(UserBase*pUser, Game*rGame, double&time,std::string&start_time)
 {
 	std::ofstream info_stream;
-	std::string play_time = std::to_string(time) + " s";
+	std::string play_time = std::to_string(time);
 	info_stream.open("activityInfo.csv", std::ios::out | std::ios::app);
 	if (!info_stream.fail())
 	{
-		info_stream << rGame->get_game_id() << "," << "Game Title: " << rGame->get_title() << "," <<"Player: "<<pUser->get_username() << "," <<"Time to Play: "<<start_time<<","<< "Game Time: " << play_time << std::endl;
+		info_stream << rGame->get_game_id() << ","<< rGame->get_title() << "," <<pUser->get_username() << "," <<start_time<<","<< play_time << std::endl;
 		info_stream.close();
 	}
 	else
@@ -543,23 +732,50 @@ void DatabaseManager::store_player_activityInfo(PlayerUser*pUser, Game*rGame, do
 	}
 }
 
-void DatabaseManager::check_player_activityInfo()
+//if i=1,print the player activity info,if i=2,print the most populargame
+void DatabaseManager::check_player_activityInfo(const int i)
 {
 	//从表中读取游戏数据
 	std::ifstream info_stream("activityInfo.csv", std::ios::in);
 	if (!info_stream.fail())
 	{
-		std::string info;
-		while (std::getline(info_stream, info, '\n'))
+		std::string gameid;
+		std::string gamename;
+		std::string starttime;
+		std::string playingtime;
+		std::string username;
+		std::string populargame="There are no most popular games";
+		double max = 0;
+		while (std::getline(info_stream, gameid, ',')&& std::getline(info_stream, gamename, ',')&&std::getline(info_stream, username, ',')&& std::getline(info_stream, starttime, ',')&& std::getline(info_stream, playingtime, '\n'))
 		{
-			if (!info.empty())
+			if (i == 1)
 			{
-				std::cout << info << std::endl;
+				if (!gameid.empty())
+				{
+					std::cout << "gameid : " << gameid
+						<< "game name: " << gamename
+						<< "user name: " << username
+						<< "login time: " << starttime
+						<< "playing time: " << playingtime << "s" << std::endl;
+				}
+				else
+				{
+					std::cout << "No Activity Info" << std::endl;
+				}
 			}
-			else
+			else if(i==2)
 			{
-				std::cout << "No Activity Info" << std::endl;
-			}
+				double durtime = std::stod(playingtime);
+				if (durtime >= max)
+				{
+					max = durtime;
+					populargame = gamename;
+				}				
+			}			
+		}
+		if (i == 2)
+		{
+			std::cout << "The most popular game is: "+ populargame<<std::endl;
 		}
 		info_stream.close();
 	}
