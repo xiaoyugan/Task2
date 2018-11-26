@@ -179,8 +179,17 @@ int MenuSystem::run_admin_user_menu()
 			std::cout << "(2) Add PlayerUser\n";
 			std::cout << "(3) Add GameStudio\n";
 			std::cin >> op;
-			std::cout << "Please Input New User Name\n";
+			std::cout << "Please Input New User Username\n";
 			std::cin >> u_name;
+
+			auto ptr = DatabaseManager::instance().find_user(u_name);
+			while (ptr)
+			{
+				std::cout << "This user already exists, please re-enter the username\n";
+				std::cin >> u_name;
+				ptr = DatabaseManager::instance().find_user(u_name);
+			}
+
 			if (!DatabaseManager::instance().find_user(u_name))
 			{
 
@@ -573,7 +582,7 @@ int MenuSystem::run_gamestudio_menu()
 			list_my_games(pGS);
 			std::string u_name;
 			int id;
-			std::cout << "Input the name you want to give it to\n";
+			std::cout << "Input the username you want to give the game to\n";
 			std::cin >> u_name;
 			std::cout << "Please select one of your games you want to give away and Input the id\n";
 			std::cin >> id;
@@ -667,7 +676,7 @@ int MenuSystem::run_gamestudio_menu()
 					rGame->set_version(version);
 					DatabaseManager::instance().update_games_data();
 					std::cout << "Here simulates uploading a new version of the game\n";
-					std::cout<< "The new version number: " << rGame->get_version() << std::endl;
+					std::cout << "The new version number: " << rGame->get_version() << std::endl;
 					std::cout << "Update Version Successfully\n";
 				}
 				else 
@@ -708,7 +717,33 @@ int MenuSystem::run_guest_user_menu()
 		}
 		case'2':
 		{
-			std::cout << "The ¡®Sign-up¡¯ facility is not to be implemented here\n\n";
+			std::string u_name;
+			std::string u_password;
+			std::list<Game::GameId>gamelist;
+			gamelist.push_back(0);
+			int age;
+
+			std::cout << "Please input your username\n";
+			std::cin >> u_name;
+			auto ptr = DatabaseManager::instance().find_user(u_name);
+			while (ptr)
+			{
+				std::cout << "This user already exists, please re-enter your username\n";
+				std::cin >> u_name;
+				ptr = DatabaseManager::instance().find_user(u_name);
+			}
+
+			std::cout << "Please input your passerword\n";
+			std::cin >> u_password;
+			std::cout << "Please input your age\n";
+			std::cin >> age;
+			DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, m_gUser->get_email(), 0.0, gamelist, age));
+			DatabaseManager::instance().remove_guest(m_gUser->get_email());
+			DatabaseManager::instance().update_guset_data();
+			std::cout << "Sign-up successfully\n";
+			m_gUser = nullptr;
+			m_pUser = DatabaseManager::instance().find_user(u_name);
+			result = -1;
 			break;
 		}
 		case 'q': result = -1; break;

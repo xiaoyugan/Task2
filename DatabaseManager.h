@@ -31,6 +31,7 @@ public:
 	// Pass the newly modified data into the table.Prevent when the program from ending abnormally,the data loss.
 	void update_player_data();
 	void update_games_data();
+	void update_guset_data();
 
 	// Adds a user to the m_users.
 	void add_user(UserBase* pUser);
@@ -83,6 +84,8 @@ public:
 	// i=1,search by title,i=2,search by description,i=3,search by price,i=4,search by age restriction.
 	void search_game(const int i,const std::string s=" ", const double pri_upper = 0, const double pri_lower = 0,const int age=0);
 	double average_price();
+
+	void remove_guest(std::string mail);
 
 	// get current time and return a string
 	std::string get_time();

@@ -1,3 +1,7 @@
 1,testplayer1,12345,player1@,3,279.95,4789 
-1,testplayer2,12345,player1@,10,188.59,0
+1,testplayer2,12345,player1@,10,168.29,4789 
 1,testplayer3,12345,player1@,26,251,0
+1,guest2player,12345,guest1@,60,0,0
+1,guest2player2,12345,guest3@,33,0,0
+1,guest10,12345,guest10@,20,0,0
+1,guest20,12345,guest20@,20,0,0

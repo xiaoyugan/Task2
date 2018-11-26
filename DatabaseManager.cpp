@@ -274,6 +274,19 @@ void DatabaseManager::update_games_data()
 	}
 }
 
+void DatabaseManager::update_guset_data()
+{
+	//clean data
+	std::ofstream games_stream;
+	games_stream.open("guestlist.csv", std::ios::out);
+	games_stream.close();
+	//store data
+	for (auto it : m_gUsers)
+	{
+		store_guest_data(it.second);
+	}
+}
+
 void DatabaseManager::update_player_data()
 {
 	//clean
@@ -386,6 +399,11 @@ Game* DatabaseManager::find_game(const Game::GameId gameid)
 void DatabaseManager::remove_game(int id)
 {
 	m_games.erase(id);
+}
+
+void DatabaseManager::remove_guest(std::string mail)
+{
+	m_gUsers.erase(mail);
 }
 
 void DatabaseManager::give_away(UserBase*puser, std::string name,int id)
