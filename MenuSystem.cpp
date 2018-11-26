@@ -119,11 +119,12 @@ int MenuSystem::run_admin_user_menu()
 		std::cout << "(2) List All Users\n";
 		std::cout << "(3) Add Game\n";
 		std::cout << "(4) Add User\n";
-		std::cout << "(5) Modify Game\n";//todo
-		std::cout << "(6) Remove Game\n";//todo
-		std::cout << "(7) Check The Game Purchase History\n";
-		std::cout << "(8) Check Player Activity Information\n";
-		std::cout << "(9) Check out the most popular games\n"; 
+		std::cout << "(5) Modify Game\n";
+		std::cout << "(6) Remove Game\n";
+		std::cout << "(7) The Game Purchase History\n";
+		std::cout << "(8) Player Activity Information\n";
+		std::cout << "(9) The Most Popular Game\n"; 
+		std::cout << "(a) Average Game Price\n";
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -131,9 +132,9 @@ int MenuSystem::run_admin_user_menu()
 
 		switch (option)
 		{
-		case '1': list_all_games(); break;
-		case '2': list_all_users(); break;
-		case '3':
+		case'1': list_all_games(); break;
+		case'2': list_all_users(); break;
+		case'3':
 		{
 			//std::cout << "TODO\n"; break;//调用添加游戏代码
 			int g_id;
@@ -226,7 +227,7 @@ int MenuSystem::run_admin_user_menu()
 			}
 			break;
 		}
-		case'5':
+		case '5':
 		{
 			//modify game
 			int g_id;
@@ -277,7 +278,7 @@ int MenuSystem::run_admin_user_menu()
 			}
 			break;
 		}
-		case'6':
+		case '6':
 		{
 			//remove game
 			int g_id;
@@ -305,7 +306,12 @@ int MenuSystem::run_admin_user_menu()
 			DatabaseManager::instance().check_player_activityInfo(2);
 			break;
 		}
-		case 'q': result = -1; break;
+		case'a':
+		{
+			std::cout<<"The Average Game Price: "<<DatabaseManager::instance().average_price()<<std::endl;
+			break;
+		}
+		case'q': result = -1; break;
 		default:  std::cout << "INAVLID OPTION\n"; break;
 		}
 	} while (result == 0);
@@ -332,6 +338,7 @@ int MenuSystem::run_player_user_menu()
 		std::cout << "(6) Play Game\n";
 		std::cout << "(7) Add Funds\n";
 		std::cout << "(8) Check out the most popular games\n";
+		std::cout << "(9) Average Game Price\n";
 		std::cout << "(q) Logout\n";
 
 		char option;
@@ -509,6 +516,11 @@ int MenuSystem::run_player_user_menu()
 		case'8':
 		{
 			DatabaseManager::instance().check_player_activityInfo(2);
+			break;
+		}
+		case'9':
+		{
+			std::cout << "The Average Game Price: " << DatabaseManager::instance().average_price() << std::endl;
 			break;
 		}
 		case 'q': result = -1; break;

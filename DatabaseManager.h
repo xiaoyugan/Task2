@@ -101,6 +101,8 @@ public:
 	//if i=1,print the player activity info,if i=2,print the most populargame
 	void check_player_activityInfo(const int i);
 
+	double average_price();
+
 	std::string get_time();
 
 private:

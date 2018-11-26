@@ -6,7 +6,6 @@
 #include <fstream> 
 #include <string>
 #include <sstream>
-//#include <time.h>
 #include <atltime.h>
 #include <iostream>
 
@@ -782,5 +781,23 @@ void DatabaseManager::check_player_activityInfo(const int i)
 	else
 	{
 		std::cout << "No Activity Info" << std::endl;
+	}
+}
+
+double DatabaseManager::average_price()
+{
+	if (!m_games.empty())
+	{
+		double price = 0;
+		for (auto it : m_games)
+		{
+			auto rGame = it.second;
+			price += rGame.get_game_Price();
+		}
+		return price / m_games.size();
+	}
+	else
+	{
+		return 0;
 	}
 }
