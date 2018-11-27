@@ -77,7 +77,14 @@ public:
 
 	void set_accountFunds(const double& val) { m_accountFunds = val; }
 
-	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
+	void add_ownedGame(const Game::GameId& val) 
+	{
+		if (m_ownedGames.front() == 0)
+		{
+			m_ownedGames.remove(0);
+		}
+		m_ownedGames.push_back(val);		
+	}
 
 	void pop_ownedGame(const Game::GameId& val) 
 	{ 
@@ -125,7 +132,14 @@ public:
 
 	const GameStudio::GameList& accessible_gamelist() const { return m_ownedGames; }
 
-	void add_ownedGame(const Game::GameId& val) { m_ownedGames.push_back(val); }
+	void add_ownedGame(const Game::GameId& val)
+	{
+		if (m_ownedGames.front() == 0)
+		{
+			m_ownedGames.remove(0);
+		}
+		m_ownedGames.push_back(val);
+	}
 
 private:
 	GameList m_ownedGames; // List of owned games.

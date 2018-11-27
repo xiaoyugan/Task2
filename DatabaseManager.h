@@ -32,6 +32,7 @@ public:
 	void update_player_data();
 	void update_games_data();
 	void update_guset_data();
+	void update_gamestudio_data();
 
 	// Adds a user to the m_users.
 	void add_user(UserBase* pUser);

@@ -160,7 +160,7 @@ int MenuSystem::run_admin_user_menu()
 				std::cout << "Please Input New Game Age Restriction\n";
 				std::cin >> ageRestriction;
 				DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_price, g_desc,versionNumber,ageRestriction));
-				std::cout << "Added successfully\n";
+				std::cout << "Added successfully\n\n";
 			}
 			else
 			{
@@ -203,7 +203,7 @@ int MenuSystem::run_admin_user_menu()
 				{
 					//Add AdminUser
 					DatabaseManager::instance().add_and_store_adminuser(new AdminUser(u_name, u_password, u_mail));
-					std::cout << "Added successfully\n";
+					std::cout << "Added successfully\n\n";
 					break;
 				}
 				case'2':
@@ -215,7 +215,7 @@ int MenuSystem::run_admin_user_menu()
 					std::cout << "Please Input New User Age\n";
 					std::cin >> age;
 					DatabaseManager::instance().add_and_store_playeruser(new PlayerUser(u_name, u_password, u_mail, 0.0, gamelist,age));
-					std::cout << "Added successfully\n";
+					std::cout << "Added successfully\n\n";
 					break;
 				}
 				case'3':
@@ -224,7 +224,7 @@ int MenuSystem::run_admin_user_menu()
 					std::list<Game::GameId>gamelist;
 					gamelist.push_back(0);
 					DatabaseManager::instance().add_and_store_gamestudio(new GameStudio(u_name, u_password, u_mail, gamelist));
-					std::cout << "Added successfully\n";
+					std::cout << "Added successfully\n\n";
 					break;
 				}
 				default:std::cout << "INAVLID OPTION\n"; break;
@@ -245,48 +245,57 @@ int MenuSystem::run_admin_user_menu()
 			std::cout << "Please Input The ID Of The Game That You Want to Modify\n";
 			std::cin >> g_id;
 			auto rGame = DatabaseManager::instance().find_game(g_id);
-			std::cout << "(1) Modify The Title\n"
-				      << "(2) Modify The Description\n"
-					  << "(3) Modify The Price\n"
-				      << "(4) Quite\n";
-			std::cin >> op;
-			switch (op)
+			if(rGame)
 			{
-			case'1':
-			{
-				//Modify The Title
-				std::string modify_name;
-				std::cout << "Please Input The New Title\n";
-				std::cin >> modify_name;
-				rGame->set_title(modify_name);
-				DatabaseManager::instance().update_games_data();
-				std::cout << "Modify the title successfully";
-				break;
+				std::cout << "(1) Modify The Title\n"
+					<< "(2) Modify The Description\n"
+					<< "(3) Modify The Price\n"
+					<< "(4) Quite\n";
+				std::cin >> op;
+				switch (op)
+				{
+				case'1':
+				{
+					//Modify The Title
+					std::string modify_name;
+					std::cout << "Please Input The New Title\n";
+					std::cin.ignore();
+					std::getline(std::cin, modify_name, '\n');
+					rGame->set_title(modify_name);
+					DatabaseManager::instance().update_games_data();
+					std::cout << "Modify the title successfully\n\n";
+					break;
+				}
+				case'2':
+				{
+					//Modify The Description
+					std::string modify_desc;
+					std::cout << "Please Input The New Description\n";
+					std::cin.ignore();
+					std::getline(std::cin, modify_desc, '\n');
+					rGame->set_description(modify_desc);
+					DatabaseManager::instance().update_games_data();
+					std::cout << "Modify the description successfully\n\n";
+					break;
+				}
+				case'3':
+				{
+					//Modify The Price
+					double modify_price;
+					std::cout << "Please Input The New Price\n";
+					std::cin >> modify_price;
+					rGame->set_price(modify_price);
+					DatabaseManager::instance().update_games_data();
+					std::cout << "Modify the description successfully\n\n";
+					break;
+				}
+				case'4':break;
+				default: std::cout << "INAVLID OPTION\n"; break;
+				}
 			}
-			case'2':
+			else
 			{
-				//Modify The Description
-				std::string modify_desc;
-				std::cout << "Please Input The New Description\n";
-				std::cin >> modify_desc;
-				rGame->set_description(modify_desc);
-				DatabaseManager::instance().update_games_data();
-				std::cout << "Modify the description successfully";
-				break;
-			}
-			case'3':
-			{
-				//Modify The Price
-				double modify_price;
-				std::cout << "Please Input The New Price\n";
-				std::cin >> modify_price;
-				rGame->set_price(modify_price);
-				DatabaseManager::instance().update_games_data();
-				std::cout << "Modify the description successfully";
-				break;
-			}
-			case'4':break;
-			default: std::cout << "INAVLID OPTION\n"; break;
+				std::cout << "The game does not exist\n\n";
 			}
 			break;
 		}
@@ -297,9 +306,16 @@ int MenuSystem::run_admin_user_menu()
 			list_all_games();
 			std::cout << "Please Input The ID Of The Game That You Want to Remove\n";
 			std::cin >> g_id;
-			DatabaseManager::instance().remove_game(g_id);
-			DatabaseManager::instance().update_games_data();
-			std::cout << "Remove the game successfully";
+			if(DatabaseManager::instance().find_game(g_id))
+			{
+				DatabaseManager::instance().remove_game(g_id);
+				DatabaseManager::instance().update_games_data();
+				std::cout << "Remove the game successfully\n\n";
+			}
+			else
+			{
+				std::cout << "The game does not exist\n\n";
+			}
 			break;
 		}
 		case'7':
@@ -493,7 +509,7 @@ int MenuSystem::run_player_user_menu()
 			list_my_games(pPlayerUser);
 			std::string u_name;
 			int id;
-			std::cout << "Input the name you want to give it to\n";
+			std::cout << "Input your friend`s username\n";
 			std::cin >> u_name;
 			std::cout << "Please select one of your games you want to give away and Input the id\n";
 			std::cin >> id;
@@ -634,6 +650,7 @@ int MenuSystem::run_gamestudio_menu()
 				std::cin >> ageRestriction;
 				DatabaseManager::instance().add_and_store_game(Game(g_id, g_title, g_price, g_desc, versionNumber, ageRestriction));
 				pGS->add_ownedGame(g_id);
+				DatabaseManager::instance().update_gamestudio_data();
 				std::cout << "Added successfully\n";
 			}
 			else

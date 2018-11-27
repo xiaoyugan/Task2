@@ -303,6 +303,22 @@ void DatabaseManager::update_player_data()
 	}
 }
 
+void DatabaseManager::update_gamestudio_data()
+{
+	//clean
+	std::ofstream player_stream;
+	player_stream.open("gamestudiolist.csv", std::ios::out);
+	player_stream.close();
+	//store
+	for (auto it : m_users)
+	{
+		if (it.second->get_user_type() == UserTypeId::kPlayerUser)
+		{
+			store_gamestudio_data(it.second);
+		}
+	}
+}
+
 void DatabaseManager::add_user(UserBase* pUser)
 {
 	// Store the user instance in the user map, indexed by username.
@@ -736,14 +752,14 @@ void DatabaseManager::check_player_activityInfo(const int i)
 				if (!gameid.empty())
 				{
 					std::cout << "gameid : " << gameid
-						<< "game name: " << gamename
-						<< "user name: " << username
-						<< "login time: " << starttime
-						<< "playing time: " << playingtime << "s" << std::endl;
+						<< ", game name: " << gamename
+						<< ", user name: " << username
+						<< ", login time: " << starttime
+						<< ", duration: " << playingtime << "s" << std::endl;
 				}
 				else
 				{
-					std::cout << "No Activity Info" << std::endl;
+					std::cout << "No Activity Info\n" << std::endl;
 				}
 			}
 			else if(i==2)
@@ -764,7 +780,7 @@ void DatabaseManager::check_player_activityInfo(const int i)
 	}
 	else
 	{
-		std::cout << "No Activity Info" << std::endl;
+		std::cout << "No Activity Info\n" << std::endl;
 	}
 }
 
