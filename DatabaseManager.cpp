@@ -312,7 +312,7 @@ void DatabaseManager::update_gamestudio_data()
 	//store
 	for (auto it : m_users)
 	{
-		if (it.second->get_user_type() == UserTypeId::kPlayerUser)
+		if (it.second->get_user_type() == UserTypeId::kGameStudio)
 		{
 			store_gamestudio_data(it.second);
 		}
