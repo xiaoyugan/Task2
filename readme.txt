@@ -1,3 +1,5 @@
+git: https://github.com/xiaoyugan/Task2
+
 1. The meaning of each data table
     (1) activityInfo.csv
         game id, game name, player username, start time, duration 
@@ -69,7 +71,6 @@
     (4) game studios can play their own games
     (5) game studios can upload their new games and add this game to their gamelist
     (6) game studios can set a new version of their games
-
 
 
 
