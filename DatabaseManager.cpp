@@ -37,7 +37,7 @@ DatabaseManager& DatabaseManager::instance()
 void DatabaseManager::load_data()
 {
 	//load games from gamelist.csv =>m_games
-	std::ifstream games_stream("gamelist.csv", std::ios::in| std::ios::_Nocreate);
+	std::ifstream games_stream("data\\gamelist.csv", std::ios::in| std::ios::_Nocreate);
 	if (!games_stream.fail())
 	{
 		std::string g_id;
@@ -58,7 +58,7 @@ void DatabaseManager::load_data()
 	}
 
 	//load admin users from adminlist.csv =>m_users
-	std::ifstream admin_stream("adminlist.csv",std::ios::in | std::ios::_Nocreate);
+	std::ifstream admin_stream("data\\adminlist.csv",std::ios::in | std::ios::_Nocreate);
 	if (!admin_stream.fail())
 	{
 		std::string u_type;
@@ -80,7 +80,7 @@ void DatabaseManager::load_data()
 	}
 
 	//load player users from playerlist.csv =>m_users
-	std::ifstream player_stream("playerlist.csv", std::ios::in | std::ios::_Nocreate);
+	std::ifstream player_stream("data\\playerlist.csv", std::ios::in | std::ios::_Nocreate);
 	if (!player_stream.fail())
 	{
 		std::string u_type;
@@ -112,7 +112,7 @@ void DatabaseManager::load_data()
 	}
 
 	//load game studio users from gamestudiolist.csv =>m_users
-	std::ifstream gamestudio_stream("gamestudiolist.csv", std::ios::in | std::ios::_Nocreate);
+	std::ifstream gamestudio_stream("data\\gamestudiolist.csv", std::ios::in | std::ios::_Nocreate);
 	if (!gamestudio_stream.fail())
 	{
 		std::string u_type;
@@ -142,7 +142,7 @@ void DatabaseManager::load_data()
 	}
 
 	//load guest users from guestlist.csv =>m_gUsers
-	std::ifstream gusets_stream("guestlist.csv", std::ios::in | std::ios::_Nocreate);
+	std::ifstream gusets_stream("data\\guestlist.csv", std::ios::in | std::ios::_Nocreate);
 	if (!gusets_stream.fail())
 	{
 		std::string mail;
@@ -161,7 +161,7 @@ void DatabaseManager::load_data()
 void DatabaseManager::store_adminuser_data(UserBase* pUser)
 {
 	std::ofstream user_stream;
-	user_stream.open("adminlist.csv", std::ios::out | std::ios::app);
+	user_stream.open("data\\adminlist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
 		user_stream << static_cast<std::underlying_type<UserTypeId>::type>(pUser->get_user_type()) << "," << pUser->get_username() << "," << pUser->get_password() << "," << pUser->get_email() << std::endl;
@@ -177,7 +177,7 @@ void DatabaseManager::store_playeruser_data(UserBase*puser)
 {
 	PlayerUser* pUser = static_cast<PlayerUser*>(puser);
 	std::ofstream user_stream;
-	user_stream.open("playerlist.csv", std::ios::out | std::ios::app);
+	user_stream.open("data\\playerlist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
 		std::string str_gamelist;
@@ -206,7 +206,7 @@ void DatabaseManager::store_gamestudio_data(UserBase*puser)
 {
 	GameStudio* pUser = static_cast<GameStudio*>(puser);
 	std::ofstream user_stream;
-	user_stream.open("gamestudiolist.csv", std::ios::out | std::ios::app);
+	user_stream.open("data\\gamestudiolist.csv", std::ios::out | std::ios::app);
 	if (!user_stream.fail())
 	{
 		std::string str_gamelist;
@@ -234,7 +234,7 @@ void DatabaseManager::store_gamestudio_data(UserBase*puser)
 void DatabaseManager::store_guest_data(GuestUser*gUser)
 {
 	std::ofstream guest_stream;
-	guest_stream.open("guestlist.csv", std::ios::out | std::ios::app);
+	guest_stream.open("data\\guestlist.csv", std::ios::out | std::ios::app);
 	if (!guest_stream.fail())
 	{
 		guest_stream << gUser->get_email()<< std::endl;
@@ -249,7 +249,7 @@ void DatabaseManager::store_guest_data(GuestUser*gUser)
 void DatabaseManager::store_game_data(const Game &rGame)
 {
 	std::ofstream game_stream;
-	game_stream.open("gamelist.csv", std::ios::out | std::ios::app);
+	game_stream.open("data\\gamelist.csv", std::ios::out | std::ios::app);
 	if (!game_stream.fail())
 	{
 		game_stream << rGame.get_game_id() << "," << rGame.get_title() << "," <<rGame.get_game_Price()<<","<< rGame.get_game_desc() <<","<<rGame.get_version()<<","<<rGame.get_ageRestriction()<< std::endl;
@@ -265,7 +265,7 @@ void DatabaseManager::update_games_data()
 {
 	//clean data
 	std::ofstream games_stream;
-	games_stream.open("gamelist.csv", std::ios::out);
+	games_stream.open("data\\gamelist.csv", std::ios::out);
 	games_stream.close();
 	//store data
 	for (auto it : m_games)
@@ -278,7 +278,7 @@ void DatabaseManager::update_guset_data()
 {
 	//clean data
 	std::ofstream games_stream;
-	games_stream.open("guestlist.csv", std::ios::out);
+	games_stream.open("data\\guestlist.csv", std::ios::out);
 	games_stream.close();
 	//store data
 	for (auto it : m_gUsers)
@@ -291,7 +291,7 @@ void DatabaseManager::update_player_data()
 {
 	//clean
 	std::ofstream player_stream;
-	player_stream.open("playerlist.csv", std::ios::out);
+	player_stream.open("data\\playerlist.csv", std::ios::out);
 	player_stream.close();
 	//store
 	for (auto it : m_users)
@@ -307,7 +307,7 @@ void DatabaseManager::update_gamestudio_data()
 {
 	//clean
 	std::ofstream player_stream;
-	player_stream.open("gamestudiolist.csv", std::ios::out);
+	player_stream.open("data\\gamestudiolist.csv", std::ios::out);
 	player_stream.close();
 	//store
 	for (auto it : m_users)
@@ -679,7 +679,7 @@ void DatabaseManager::store_purchase_history(PlayerUser*pUser, Game*rGame)
 {
 	std::string cur_time = get_time();
 	std::ofstream purchase_stream;
-	purchase_stream.open("purchaseHistory.csv", std::ios::out | std::ios::app);
+	purchase_stream.open("data\\purchaseHistory.csv", std::ios::out | std::ios::app);
 	if (!purchase_stream.fail())
 	{
 		purchase_stream <<pUser->get_username()<<","<<"Game Id: "<< rGame->get_game_id() << ","<<"Game Title: " << rGame->get_title() <<","<<"Purchase Time: "<<cur_time<< std::endl;
@@ -693,7 +693,7 @@ void DatabaseManager::store_purchase_history(PlayerUser*pUser, Game*rGame)
 
 void DatabaseManager::check_purchase_history()
 {
-	std::ifstream purchase_stream("purchaseHistory.csv", std::ios::in);
+	std::ifstream purchase_stream("data\\purchaseHistory.csv", std::ios::in);
 	if (!purchase_stream.fail())
 	{
 		std::string pur_history;
@@ -720,7 +720,7 @@ void DatabaseManager::store_player_activityInfo(UserBase*pUser, Game*rGame, doub
 {
 	std::ofstream info_stream;
 	std::string play_time = std::to_string(time);
-	info_stream.open("activityInfo.csv", std::ios::out | std::ios::app);
+	info_stream.open("data\\activityInfo.csv", std::ios::out | std::ios::app);
 	if (!info_stream.fail())
 	{
 		info_stream << rGame->get_game_id() << ","<< rGame->get_title() << "," <<pUser->get_username() << "," <<start_time<<","<< play_time << std::endl;
@@ -735,7 +735,7 @@ void DatabaseManager::store_player_activityInfo(UserBase*pUser, Game*rGame, doub
 //if i=1,print the player activity info,if i=2,print the most populargame
 void DatabaseManager::check_player_activityInfo(const int i)
 {
-	std::ifstream info_stream("activityInfo.csv", std::ios::in);
+	std::ifstream info_stream("data\\activityInfo.csv", std::ios::in);
 	if (!info_stream.fail())
 	{
 		std::string gameid;

@@ -1,6 +1,6 @@
 git: https://github.com/xiaoyugan/Task2
 
-1. The meaning of each data table
+1. The meaning of each data table (in data folder)
     (1) activityInfo.csv
         game id, game name, player username, start time, duration 
     (2) adminlist.csv
